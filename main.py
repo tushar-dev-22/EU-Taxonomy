@@ -7,6 +7,8 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 import pandas as pd
 from io import StringIO
+import plotly.express as px
+import plotly.graph_objects as go
 # Page configuration
 st.set_page_config(
     page_title="EU Taxonomy",
@@ -1161,6 +1163,10 @@ elif st.session_state.page == 'risk-management':
         #     # Save the workbook
         #     writer.save()
         #     st.success("Changes saved to Excel file.")
+    if st.session_state.page == 'risk-management':
+        st.button("Back" , on_click = continue_to_phase2)
+    st.button("Dashboard",on_click = continue_to_dashboard)
+
 elif st.session_state.page == 'dashboard':
     st.markdown(
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
@@ -1178,9 +1184,108 @@ elif st.session_state.page == 'dashboard':
     st.sidebar.header("Dashboard Navigation")
     options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
     if  options == "Data Overview":
-        st.title("Data Overview")
-        st_lottie(lottie_animation1, height=300, key="data_overview")
-        st.write("Here you can review detailed data insights.")
+        def load_financial_model(file_path):
+            return pd.read_excel(file_path, sheet_name='Output', header=7)
+
+        # Load and clean data
+        df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
+        fixed_indices = [0, 1, 2, 9]
+        range_indices = list(range(11, 63))
+        indices_to_drop = fixed_indices + range_indices
+        df_cleaned = df.drop(indices_to_drop)
+        df_cleaned = df_cleaned.dropna(axis=1, how='any')
+
+        # Dashboard title
+        # st.set_page_config(page_title="Financial Analytics Dashboard", layout="wide")
+        st.title("Financial Analytics Dashboard")
+        st.markdown("#### Project Damietta CashFlow Analysis")
+        st.divider()
+
+        total_unitary_charge_phase_1 = df_cleaned.loc[8, 'Phase_1']
+        total_unitary_charge_phase_2 = df_cleaned.loc[8, 'Phase_2']
+        equity_irr_phase_1 = df_cleaned.loc[10, 'Phase_1']
+        equity_irr_phase_2 = df_cleaned.loc[10, 'Phase_2']
+
+        # Convert IRR to percentage
+        equity_irr_phase_1_percentage = equity_irr_phase_1 * 100  
+        equity_irr_phase_2_percentage = equity_irr_phase_2 * 100
+
+        # Summary Metrics Section
+        st.markdown("""
+                <style>
+                    .custom-subheader {
+                        color: #000c66;
+                        font-size: 28px;
+                        font-weight: bold;
+                        margin-top: 20px; /* Optional: add space above the subheader */
+                        margin-bottom: 10px; /* Optional: add space below the subheader */
+                    }
+                </style>
+                <h2 class='custom-subheader'>Key Financial Metrics</h2>
+                """, unsafe_allow_html=True)
+
+        # Create a container for the cards to ensure they are displayed inline
+        cols = st.columns(4)
+
+        # Define a function to create a styled card
+        def create_metric_card(col, label, value):
+            col.markdown(
+                f"""
+                <div style="border-radius: 10px; padding: 10px; text-align: left; background-color: #ffffff; box-shadow:0 2px 8px rgba(0, 0, 0, 0.1),0 2px 8px rgba(0, 0, 0, 0.2);">
+                    <h4 style="color: #000000; margin: 0; font-size: 15px; font-weight:700">{label}</h4>
+                    <p style="font-size: 14px; color: #000000; margin: 0;">{value}</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        # Create cards for each metric
+        create_metric_card(cols[0], "Total Unity Charge - Phase-1", f"{total_unitary_charge_phase_1:.2f} LE/m³")
+        create_metric_card(cols[1], "Total Unity Charge - Phase-2", f"{total_unitary_charge_phase_2:.2f} LE/m³")
+        create_metric_card(cols[2], "Equity IRR - Phase-1", f"{equity_irr_phase_1_percentage:.2f}%")
+        create_metric_card(cols[3], "Equity IRR - Phase-2", f"{equity_irr_phase_2_percentage:.2f}%")
+
+        st.divider()
+
+        # Tariffs Comparison (Phase 1 vs Phase 2)
+        st.subheader("Comparison of Tariffs between Phase 1 and Phase 2")
+        tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:6].set_index('Unnamed: 4')
+        fig = px.bar(
+            tariffs,
+            barmode='group',
+            title="Tariff Comparison (Phase 1 vs Phase 2)",
+            color_discrete_sequence=px.colors.sequential.Teal,
+            labels={"value": "Tariff", "Unnamed: 4": "Metric"}
+        )
+        fig.update_layout(
+            title_font=dict(size=18, color='darkblue'),
+            xaxis=dict(title="Metric"),
+            yaxis=dict(title="Tariff Value"),
+            legend=dict(orientation="h", y=1.1)
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Unitary Charge and Equity IRR Comparison
+        st.subheader("Unitary Charge & Equity IRR Analysis")
+        unitary_charge_irr = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[6:8].set_index('Unnamed: 4')
+        fig2 = go.Figure()
+        fig2.add_trace(go.Scatter(x=unitary_charge_irr.index, y=unitary_charge_irr['Phase_1'], mode='lines+markers', name='Phase 1', line=dict(color='royalblue', width=2)))
+        fig2.add_trace(go.Scatter(x=unitary_charge_irr.index, y=unitary_charge_irr['Phase_2'], mode='lines+markers', name='Phase 2', line=dict(color='orange', width=2)))
+        fig2.update_layout(
+            title="Unitary Charge and Equity IRR",
+            xaxis_title="Metric",
+            yaxis_title="Value",
+            title_font=dict(size=18, color='darkblue'),
+            legend=dict(orientation="h", y=1.1),
+            hovermode="x unified"
+        )
+        st.plotly_chart(fig2, use_container_width=True)
+
+        # Conclusion or Additional Notes Section
+        st.markdown("### Additional Insights")
+        st.text("Provide additional analysis, insights, or explanations here to aid user interpretation.")
+
+        st.write(df_cleaned)
     elif options == "User Details":
         col1,col2 = st.columns([3,5])
         with col1:

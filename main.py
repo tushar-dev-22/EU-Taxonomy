@@ -1,7 +1,7 @@
 from datetime import datetime
 import streamlit as st
 from dateutil.relativedelta import relativedelta
-import openpyxl
+from openpyxl import load_workbook
 import requests
 import streamlit as st
 from streamlit_lottie import st_lottie
@@ -9,6 +9,7 @@ import pandas as pd
 from io import StringIO
 import plotly.express as px
 import plotly.graph_objects as go
+from datetime import timedelta
 # Page configuration
 st.set_page_config(
     page_title="EU Taxonomy",
@@ -16,6 +17,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
 
 
 
@@ -58,6 +60,16 @@ if 'field47' not in st.session_state:
     st.session_state.field47 = 0.0
 if 'field60' not in st.session_state:
     st.session_state.field60 = 0.0
+
+if 'osdp1' not in st.session_state:
+        st.session_state.osdp1 = 0.0
+
+if 'field17' not in st.session_state:
+        st.session_state.field17 = 0.0
+
+if 'osdp2' not in st.session_state:
+    st.session_state.osdp2 = None
+
 st.markdown(
     """
     <style>
@@ -388,7 +400,7 @@ if st.session_state.page == 'main':
                         else:
                             st.markdown(
                                 f'<div style="background-color: {bg_color}; color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; width: 100%;" class="big-font">'
-                                '<strong>Is there any Signals of abuse to Human Resource?</strong>'
+                                '<strong>Is there any Signals of abuse to Human Resource?</strong>' 
                                 '<button class="info-button tooltip" id="info-btn">i'
                                 '<span class="tooltiptext">Support for fair labor practices, including ensuring safe working conditions, non- discrimination, and the right to organize and bargain collectively.</span>'
                                 '</button>'
@@ -527,6 +539,7 @@ elif st.session_state.page == 'phase':
     df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83])
 
     df_cleaned['Unit'] = df_cleaned['Unit'].fillna(0)
+    df_cleaned['Unnamed: 4'] = df_cleaned['Unnamed: 4'].fillna(0)
     df_cleaned['Phase_1'] = df_cleaned['Phase_1'].fillna(0)
     df_cleaned['Phase_2'] = df_cleaned['Phase_2'].fillna(0)
 
@@ -591,13 +604,18 @@ elif st.session_state.page == 'phase':
         if st.session_state.field8 != 0:    
             st.session_state.field9 = st.write("Construction End Date: - Phase 1", calculate_future_date_months(st.session_state.field7,st.session_state.field8)) # TBC
             st.session_state.field9 = calculate_future_date_months(st.session_state.field7,st.session_state.field8)
-        
-        st.session_state.osdp1 = custom_date_input("Operations Start Date - Phase 1", 'osdp1key')            
+        if st.session_state.field8 != 0:
+            st.session_state.field9 = calculate_future_date_months(st.session_state.field7, st.session_state.field8)
+            operations_start_date = st.session_state.field9 + timedelta(days=1)
+            st.session_state.osdp1 = operations_start_date
+            st.write("Operations Start Date - Phase 1:", st.session_state.osdp1)        
         st.session_state.field10 = custom_number_input("Operations Period(in Years) - Phase 1", '10', "Enter")
         if st.session_state.field10 != 0:
             st.session_state.oedp1 = st.write("Operations End Date: - Phase 1", calculate_future_date_years(st.session_state.osdp1,st.session_state.field10)) # TBC
             st.session_state.oedp1 = calculate_future_date_years(st.session_state.osdp1,st.session_state.field10)
-        st.session_state.drsdp1 = custom_date_input("Debt Repayment Start Date - Phase 1", 'drsdp1key')
+        if st.session_state.osdp1 != 0: 
+            st.session_state.drsdp1 =  st.session_state.osdp1
+            st.write("Debt Repayment Start Date - Phase 1:", st.session_state.drsdp1)
         st.session_state.drtp1 = custom_number_input("Debt Repayment Tenor(in Years) - Phase 1", 'drtp1key', "Enter")
         if st.session_state.drtp1 != 0:
             st.session_state.dredp1 = st.write("Debt Repayment End Date: - Phase 1", calculate_future_date_years(st.session_state.drsdp1,st.session_state.drtp1)) # TBC
@@ -621,6 +639,13 @@ elif st.session_state.page == 'phase':
         if st.session_state.field14 != 0 and st.session_state.field15 != 0:
             st.write("All in Rate (%)", st.session_state.field14 + st.session_state.field15) # TBC
             st.session_state.field16 = st.session_state.field14 + st.session_state.field15
+        st.session_state.field17 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 1",'17', "Enter")
+        st.session_state.field18 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 1",'18', "Enter")
+        if st.session_state.field17 != 0 and st.session_state.field18 != 0:
+            st.write("All in Rate (%) - Phase 1", st.session_state.field17 + st.session_state.field18) # TBC
+            st.session_state.field19 = st.session_state.field17 + st.session_state.field18
+        st.session_state.ofwaccp1 = custom_percentage_input("Offtake - WACC (%) - Phase 1" , "ofwaccp1key" , "Enter")
+        st.session_state.drcitrp1 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 1","citrp1key" ,"Enter")
 
 
         st.markdown("<br><br>", unsafe_allow_html=True)
@@ -630,15 +655,24 @@ elif st.session_state.page == 'phase':
             '</div>', unsafe_allow_html=True)
         col1, col2 = st.columns((1, 1))
         with col1:
-            st.session_state.field21 = custom_number_input("Gross Availability - Phase 1", '21',"Enter")
-            st.session_state.field22 = custom_percentage_input("Availibility Factor (%) - Phase 1", '22',"Enter",95.0)
-            st.session_state.field23 = custom_percentage_input("Input to Output Ratio (%) - Phase 1", '23',"Enter",100.0)
-            st.session_state.field24 = custom_percentage_input("Leakage Ratio/Losses (%) - Phase 1", '24',"Enter",95.0)
-            st.session_state.cgp1 = custom_number_input("Chlorine Gas (in LE'000s) - Phase 1",'cgp1key', "Enter",0.0)
-            st.session_state.cfltp1 = custom_number_input("Chemical for laboratory test (in LE'000s) - Phase 1",'cfltp1key', "Enter",0.0)
-            st.session_state.ogsgp1 = custom_number_input("Oil, Gas, Solar, and Gasoline (in LE'000s)  - Phase 1",'ogsgp1key', "Enter",0.0)
-            st.session_state.ofo1 = custom_number_input("Other Fixed Opex (in LE'000s)  - Phase 1",'ofo1key', "Enter",0.0)
+            st.markdown(
+                '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
+                'Fixed Operating Costs - Phase 1'
+                '</div>',
+                unsafe_allow_html=True
+            )
+            st.session_state.cgp1 = custom_number_input("Chlorine Gas (in LE'000s) - Phase 1",'cgp1key', "Enter", 0.0)
+            st.session_state.cfltp1 = custom_number_input("Chemical for laboratory test (in LE'000s) - Phase 1",'cfltp1key', "Enter", 0.0)
+            st.session_state.ogsgp1 = custom_number_input("Oil, Gas, Solar, and Gasoline (in LE'000s)  - Phase 1",'ogsgp1key', "Enter", 0.0)
+            st.session_state.ofo1 = custom_number_input("Other Fixed Opex (in LE'000s)  - Phase 1",'ofo1key', "Enter", 0.0)
         with col2:
+
+            st.markdown(
+                '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
+                'Variable Operating Costs - Phase 1'
+                '</div>',
+                unsafe_allow_html=True
+            )
             st.session_state.field25 = custom_number_input("Labor (in LE'000s) - Phase 1", '25',"Enter")
             st.session_state.field26 = custom_number_input("Spare Part Cost  (in LE'000s) - Phase 1", '32',"Enter")
             st.session_state.field27 = custom_number_input("Energy Costs (LE/Kw) - Phase 1", '31',"Enter")
@@ -647,13 +681,6 @@ elif st.session_state.page == 'phase':
                 st.write("Effective Price- Energy Costs (LE/m³) - Phase 1",st.session_state.field27*st.session_state.field28)
                 st.session_state.field29 = st.session_state.field27*st.session_state.field28
             st.session_state.field34 = custom_number_input("Maintenance Costs (in LE'000s/Year) - Phase 1", '26',"Enter")
-            st.session_state.field17 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 1",'17', "Enter")
-            st.session_state.field18 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 1",'18', "Enter")
-            if st.session_state.field17 != 0 and st.session_state.field18 != 0:
-                st.write("All in Rate (%) - Phase 1", st.session_state.field17 + st.session_state.field18) # TBC
-                st.session_state.field19 = st.session_state.field17 + st.session_state.field18
-            st.session_state.ofwaccp1 = custom_percentage_input("Discount Rates/ Taxes (Offtake - WACC (%)) - Phase 1" , "ofwaccp1key" , "Enter")
-            st.session_state.drcitrp1 = custom_percentage_input("Discount Rates/ Taxes (Corporate Income Tax Rate (%)) - Phase 1","citrp1key" ,"Enter")
         if check_phase1 and not check_phase2:
             st.button("Continue to Risk Management", on_click=continue_to_risk_management,key='cont1')
         if check_phase2:
@@ -674,6 +701,12 @@ elif st.session_state.page == 'phase':
         if 'field29' not in st.session_state:
              st.session_state.field29 = None
 
+        if 'osdp1' not in st.session_state:
+             st.session_state.osdp1 = None
+
+        if 'drsdp1' not in st.session_state:
+             st.session_state.drsdp1 = None
+
         if st.session_state.fcp1:
             # Store the new date input into the DataFrame
             df_cleaned.at[6, 'Phase_1'] = st.session_state.fcp1
@@ -687,7 +720,7 @@ elif st.session_state.page == 'phase':
         if st.session_state.field9:
             df_cleaned.at[11, 'Phase_1'] = st.session_state.field9
 
-        if st.session_state.osdp1:
+        if getattr(st.session_state, 'osdp1', None):
             df_cleaned.at[14, 'Phase_1'] = st.session_state.osdp1
 
         if st.session_state.field10:
@@ -696,7 +729,7 @@ elif st.session_state.page == 'phase':
         if getattr(st.session_state, 'oedp1', None):
             df_cleaned.at[16, 'Phase_1'] = st.session_state.oedp1
 
-        if st.session_state.drsdp1:
+        if getattr(st.session_state, 'drsdp1', None):
             df_cleaned.at[19, 'Phase_1'] = st.session_state.drsdp1
 
         if st.session_state.drtp1:
@@ -731,22 +764,6 @@ elif st.session_state.page == 'phase':
 
         if st.session_state.field15:
             df_cleaned.at[43, 'Phase_1'] = st.session_state.field15
-
-        if st.session_state.field16:
-            df_cleaned.at[44, 'Phase_1'] = st.session_state.field16
-
-        if st.session_state.field21:
-            df_cleaned.at[49, 'Phase_1'] = st.session_state.field21
-
-        if st.session_state.field22:
-            df_cleaned.at[50, 'Phase_1'] = st.session_state.field22
-
-        if st.session_state.field23:
-            df_cleaned.at[51, 'Phase_1'] = st.session_state.field23
-
-        if st.session_state.field24:
-            df_cleaned.at[52, 'Phase_1'] = st.session_state.field24
-
 
         if st.session_state.cgp1:
             df_cleaned.at[57, 'Phase_1'] = st.session_state.cgp1
@@ -794,7 +811,55 @@ elif st.session_state.page == 'phase':
             df_cleaned.at[81, 'Phase_1'] = st.session_state.drcitrp1
 
 
-        st.write("Updated DataFrame:", df_cleaned)
+
+        workbook = load_workbook('Project Damietta_CashFlow Model_01b.xlsx')
+
+        sheet = workbook['Inp_C']
+
+        if 'Phase_1' in df_cleaned.columns:
+            sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
+            sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
+            sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
+            sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
+            sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
+            sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
+            sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
+            sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1']) 
+            sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
+            sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
+            sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
+            sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
+            sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1']) 
+            sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
+            sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
+            sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
+            sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
+            sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
+            sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
+            sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
+            sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
+            sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
+            sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
+            sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
+            sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
+            sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
+            sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
+            sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
+            sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
+
+            # 1
+
+            sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
+            sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
+            sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
+            sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
+            sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+
+
+            workbook.save('Project Damietta_CashFlow Model_01b.xlsx')
+
+
+            st.write("Updated DataFrame:", df_cleaned)
 
 
     
@@ -812,6 +877,7 @@ elif st.session_state.page == 'phase2':
     df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83])
 
     df_cleaned['Unit'] = df_cleaned['Unit'].fillna(0)
+    df_cleaned['Unnamed: 4'] = df_cleaned['Unnamed: 4'].fillna(0)
     df_cleaned['Phase_1'] = df_cleaned['Phase_1'].fillna(0)
     df_cleaned['Phase_2'] = df_cleaned['Phase_2'].fillna(0)
 
@@ -861,12 +927,21 @@ elif st.session_state.page == 'phase2':
     if st.session_state.field36 != 0:
         st.write("Construction End Date:", calculate_future_date_months(st.session_state.field35,st.session_state.field36)) # TBC
         st.session_state.field37 = calculate_future_date_months(st.session_state.field35,st.session_state.field36)
-    st.session_state.osdp2 = custom_date_input("Operations Start Date - Phase 2", 'osdp2key')
+
+    if st.session_state.field36 != 0:
+        st.session_state.field37 = calculate_future_date_months(st.session_state.field35, st.session_state.field36)
+        operations_start_date = st.session_state.field37 + timedelta(days=1)
+        st.session_state.osdp2 = operations_start_date
+        st.write("Operations Start Date - Phase 2:", st.session_state.osdp2)    
+    # st.session_state.osdp2 = custom_date_input("Operations Start Date - Phase 2", 'osdp2key')
     st.session_state.field38 = custom_number_input("Operations Period(in months) - Phase 2", '38', "Enter",0.0)
     if st.session_state.field38 != 0:
         st.session_state.oedp2 = st.write("Operations End Date: - Phase 2", calculate_future_date_years(st.session_state.osdp2,st.session_state.field38)) # TBC
         st.session_state.oedp2 = calculate_future_date_years(st.session_state.osdp2,st.session_state.field38)
-    st.session_state.drsdp2 = custom_date_input("Debt Repayment Start Date - Phase 2", 'drsdp2key')
+    if st.session_state.osdp2 != 0: 
+        st.session_state.drsdp2 =  st.session_state.osdp2
+        st.write("Debt Repayment Start Date - Phase 2:", st.session_state.drsdp2)
+    # st.session_state.drsdp2 = custom_date_input("Debt Repayment Start Date - Phase 2", 'drsdp2key')
     st.session_state.drtp2 = custom_number_input("Debt Repayment Tenor(in Years) - Phase 2", 'drtp2key', "Enter")
     if st.session_state.drtp2 != 0:
         st.session_state.dredp2 = st.write("Debt Repayment End Date: - Phase 2", calculate_future_date_years(st.session_state.drsdp2,st.session_state.drtp2)) # TBC
@@ -889,6 +964,13 @@ elif st.session_state.page == 'phase2':
     if st.session_state.field42 != 0 and st.session_state.field43 != 0:
         st.write("All in Rate (%) - Phase 2", st.session_state.field42 + st.session_state.field43) # TBC
         st.session_state.field44 = st.session_state.field42 + st.session_state.field43
+    st.session_state.field45 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 2",'45', "Enter",0.0)
+    st.session_state.field46 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 2",'46', "Enter",0.0)
+    if st.session_state.field45 != 0 and st.session_state.field46 != 0:
+        st.write("All in Rate (%) - Phase 2", st.session_state.field45 + st.session_state.field46) # TBC
+        st.session_state.field47 = st.session_state.field45 + st.session_state.field46
+    st.session_state.ofwaccp2 = custom_percentage_input("Offtake - WACC (%) - Phase 2" , "ofwaccp2key" , "Enter")
+    st.session_state.drcitrp2 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 2","citrp2key" ,"Enter")
     st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown(
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 15px; margin-bottom: 15px; width: 80%; text-align: center; font-size: 36px; margin-top: -50px;" class="center-text">'
@@ -896,16 +978,23 @@ elif st.session_state.page == 'phase2':
         '</div>', unsafe_allow_html=True)
     col1, col2 = st.columns((1, 1))
     with col1:
-        st.session_state.field49 = custom_number_input("Gross Availability - Phase 2", '49',"Enter",0.0)
-        st.session_state.field50 = custom_percentage_input("Availibility Factor (%) - Phase 2", '50',"Enter",95.0)
-        st.session_state.field51 = custom_percentage_input("Input to Output Ratio (%) - Phase 2", '51',"Enter",100.0)
-        st.session_state.field52 = custom_percentage_input("Leakage Ratio/Losses (%) - Phase 2", '52',"Enter",95.0)
+        st.markdown(
+            '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
+            'Fixed Operating Costs - Phase 2'
+            '</div>',
+            unsafe_allow_html=True
+        )
         st.session_state.cgp2 = custom_number_input("Chlorine Gas (in LE'000s) - Phase 2",'cgp2key', "Enter",0.0)
         st.session_state.cfltp2 = custom_number_input("Chemical for laboratory test (in LE'000s) - Phase 2",'cfltp2key', "Enter",0.0)
         st.session_state.ogsgp2 = custom_number_input("Oil, Gas, Solar, and Gasoline (in LE'000s)  - Phase 2",'ogsgp2key', "Enter",0.0)
         st.session_state.ofo2 = custom_number_input("Other Fixed Opex (in LE'000s)  - Phase 2",'ofo2key', "Enter",0.0)
     with col2:
-
+        st.markdown(
+            '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
+            'Variable Operating Costs - Phase 2'
+            '</div>',
+            unsafe_allow_html=True
+        )
         st.session_state.field53 = custom_number_input("Labor (in LE'000s) - Phase 2", '53',"Enter",0.0)
         st.session_state.field62 = custom_number_input("Spare Part Cost  (in LE'000s) - Phase 2", '32',"Enter")
         st.session_state.field58 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", '58',"Enter",0.0)
@@ -914,13 +1003,6 @@ elif st.session_state.page == 'phase2':
             st.write("Effective Price - Energy Costs (LE/m³) - Phase 2",st.session_state.field58*st.session_state.field59)
             st.session_state.field60 = st.session_state.field58*st.session_state.field59
         st.session_state.field54 = custom_number_input("Maintenance Costs (in LE'000s/Year) - Phase 2", '54',"Enter",0.0)
-        st.session_state.field45 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 2",'45', "Enter",0.0)
-        st.session_state.field46 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 2",'46', "Enter",0.0)
-        if st.session_state.field45 != 0 and st.session_state.field46 != 0:
-            st.write("All in Rate (%) - Phase 2", st.session_state.field45 + st.session_state.field46) # TBC
-            st.session_state.field47 = st.session_state.field45 + st.session_state.field46
-        st.session_state.ofwaccp2 = custom_percentage_input("Discount Rates/ Taxes (Offtake - WACC (%)) - Phase 2" , "ofwaccp2key" , "Enter")
-        st.session_state.drcitrp2 = custom_percentage_input("Discount Rates/ Taxes (Corporate Income Tax Rate (%)) - Phase 2","citrp2key" ,"Enter")
     col1,col2 = st.columns([1,18])
     with col1:
         if st.session_state.page == 'phase2':
@@ -947,6 +1029,9 @@ elif st.session_state.page == 'phase2':
     if 'field69' not in st.session_state:
             st.session_state.field69 = None
 
+    if 'drsdp2' not in st.session_state:
+        st.session_state.drsdp2 = None
+
     if st.session_state.fcp2:
         df_cleaned.at[6, 'Phase_2'] = st.session_state.fcp2
 
@@ -968,7 +1053,7 @@ elif st.session_state.page == 'phase2':
     if getattr(st.session_state, 'oedp2', None):
         df_cleaned.at[16, 'Phase_2'] = st.session_state.oedp2
 
-    if st.session_state.drsdp2:
+    if getattr(st.session_state, 'drsdp2', None):
         df_cleaned.at[19, 'Phase_2'] = st.session_state.drsdp2
 
     if st.session_state.drtp2:
@@ -1006,19 +1091,6 @@ elif st.session_state.page == 'phase2':
 
     if st.session_state.field44:
         df_cleaned.at[44, 'Phase_2'] = st.session_state.field44
-
-    if st.session_state.field49:
-        df_cleaned.at[49, 'Phase_2'] = st.session_state.field49
-
-    if st.session_state.field50:
-        df_cleaned.at[50, 'Phase_2'] = st.session_state.field50
-
-    if st.session_state.field51:
-        df_cleaned.at[51, 'Phase_2'] = st.session_state.field51
-
-    if st.session_state.field52:
-        df_cleaned.at[52, 'Phase_2'] = st.session_state.field52
-
 
     if st.session_state.cgp2:
         df_cleaned.at[57, 'Phase_2'] = st.session_state.cgp2
@@ -1066,7 +1138,52 @@ elif st.session_state.page == 'phase2':
         df_cleaned.at[81, 'Phase_2'] = st.session_state.drcitrp2
 
 
-    st.write("Updated DataFrame:", df_cleaned)
+    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+
+    workbook = load_workbook(file_path)
+
+    sheet = workbook['Inp_C']
+
+    if 'Phase_2' in df_cleaned.columns:
+        sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
+        sheet.cell(row=14, column=11, value=df_cleaned.at[9, 'Phase_2'])
+        sheet.cell(row=15, column=11, value=df_cleaned.at[10, 'Phase_2']) 
+        sheet.cell(row=16, column=11, value=df_cleaned.at[11, 'Phase_2']) 
+        sheet.cell(row=19, column=11, value=df_cleaned.at[14, 'Phase_2']) 
+        sheet.cell(row=20, column=11, value=df_cleaned.at[15, 'Phase_2']) 
+        sheet.cell(row=21, column=11, value=df_cleaned.at[16, 'Phase_2']) 
+        sheet.cell(row=24, column=11, value=df_cleaned.at[19, 'Phase_2']) 
+        sheet.cell(row=25, column=11, value=df_cleaned.at[20, 'Phase_2']) 
+        sheet.cell(row=26, column=11, value=df_cleaned.at[21, 'Phase_2']) 
+        sheet.cell(row=30, column=11, value=df_cleaned.at[25, 'Phase_2']) 
+        sheet.cell(row=31, column=11, value=df_cleaned.at[26, 'Phase_2']  / 100) 
+        sheet.cell(row=32, column=11, value=df_cleaned.at[27, 'Phase_2']) 
+        sheet.cell(row=37, column=11, value=df_cleaned.at[32, 'Phase_2'] / 100) 
+        sheet.cell(row=38, column=11, value=df_cleaned.at[33, 'Phase_2'] / 100) 
+        sheet.cell(row=41, column=11, value=df_cleaned.at[36, 'Phase_2'] / 100) 
+        sheet.cell(row=44, column=11, value=df_cleaned.at[39, 'Phase_2'] / 100) 
+        sheet.cell(row=47, column=11, value=df_cleaned.at[42, 'Phase_2'] / 100) 
+        sheet.cell(row=48, column=11, value=df_cleaned.at[43, 'Phase_2'] / 100) 
+        sheet.cell(row=62, column=11, value=df_cleaned.at[57, 'Phase_2']) 
+        sheet.cell(row=63, column=11, value=df_cleaned.at[58, 'Phase_2']) 
+        sheet.cell(row=64, column=11, value=df_cleaned.at[59, 'Phase_2']) 
+        sheet.cell(row=65, column=11, value=df_cleaned.at[60, 'Phase_2']) 
+        sheet.cell(row=68, column=11, value=df_cleaned.at[63, 'Phase_2']) 
+        sheet.cell(row=69, column=11, value=df_cleaned.at[64, 'Phase_2']) 
+        sheet.cell(row=70, column=11, value=df_cleaned.at[65, 'Phase_2']) 
+        sheet.cell(row=71, column=11, value=df_cleaned.at[66, 'Phase_2']) 
+        sheet.cell(row=72, column=11, value=df_cleaned.at[67, 'Phase_2']) 
+        sheet.cell(row=78, column=11, value=df_cleaned.at[73, 'Phase_2'] / 100)
+        sheet.cell(row=79, column=11, value=df_cleaned.at[74, 'Phase_2'] / 100)
+        sheet.cell(row=80, column=11, value=df_cleaned.at[75, 'Phase_2'] / 100)
+        sheet.cell(row=84, column=11, value=df_cleaned.at[79, 'Phase_2']  / 100)
+        sheet.cell(row=86, column=11, value=df_cleaned.at[81, 'Phase_2']  / 100)
+
+
+        workbook.save(file_path)
+
+
+        st.write("Updated DataFrame:", df_cleaned)
 
 elif st.session_state.page == 'risk-management':
     st.markdown(
@@ -1075,6 +1192,21 @@ elif st.session_state.page == 'risk-management':
         '</div>', unsafe_allow_html=True)
     
     excel_file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+
+
+    if 'editable_values' not in st.session_state:
+        st.session_state.editable_values = { 
+            column: [""] * 15 for column in [
+                "Category", 
+                "Base Cost Link (CAPEX/OPEX/Maintenance)", 
+                "Percentage of Base Cost (%)", 
+                "Recurrence (if OPEX related)", 
+                "Probability of Occurrence (%)", 
+                "Allocation to Government (%)", 
+                "Allocation to Private Sector (%)",
+                "mitigation cost"
+            ]
+        }
 
     # Load the Excel file into a Pandas DataFrame
     df = pd.read_excel(excel_file_path, sheet_name='Sheet1', header=4)
@@ -1095,7 +1227,8 @@ elif st.session_state.page == 'risk-management':
         "Recurrence (if OPEX related)", 
         "Probability of Occurrence (%)", 
         "Allocation to Government (%)", 
-        "Allocation to Private Sector (%)"
+        "Allocation to Private Sector (%)",
+        "mitigation cost"
     ]
 
     # Function to ensure a risk can only be selected once
@@ -1105,16 +1238,16 @@ elif st.session_state.page == 'risk-management':
 
     # Loop for 15 dropdowns
     for i in range(15):
-        st.markdown(f"### Select Risk {i+1}")
-        
+        st.markdown(f"### Select Risk {i + 1}")
+
         # Dropdown to select the risk, ensure each risk can only be selected once
         selected_risk = st.selectbox(
-            f"Risk {i+1}", 
-            available_risks(i), 
+            f"Risk {i + 1}",
+            available_risks(i),
             key=f"risk_{i}",
             index=available_risks(i).index(st.session_state.selected_risks[i])
         )
-        
+
         # Store the selected risk
         st.session_state.selected_risks[i] = selected_risk
 
@@ -1122,23 +1255,73 @@ elif st.session_state.page == 'risk-management':
         if selected_risk != "Select a risk":
             selected_risk_data = df[df['Risk'] == selected_risk].iloc[0]
 
-            # Use an expander to show editable fields for the selected risk
+                # Use an expander to show editable fields for the selected risk
             with st.expander(f"Details for {selected_risk}"):
                 for column in editable_fields:
-                    if "Percentage" in column or "Allocation" in column:
-                        # Convert percentage fields to float for input
-                        current_value_str = selected_risk_data[column]
-                        current_value_float = float(current_value_str.strip('%')) if isinstance(current_value_str, str) and '%' in current_value_str else float(current_value_str)
-                        new_value = st.number_input(f"{column} (Risk {i+1})", value=current_value_float, format="%.2f", key=f"num_input_{i}_{column}")
-                        
-                        # Update the value in the dataframe dynamically
-                        df.loc[df['Risk'] == selected_risk, column] = f"{new_value:.2f}%"
+                    # Check if the column is one of the exceptions
+                    if column in ["Category", "Base Cost Link (CAPEX/OPEX/Maintenance)"]:
+                        # For these fields, use the original value from the DataFrame
+                        current_value_str = selected_risk_data[column] if pd.notna(selected_risk_data[column]) else ""
                     else:
-                        new_value = st.text_input(f"{column} (Risk {i+1})", value=selected_risk_data[column], key=f"text_input_{i}_{column}")
-                        
-                        # Update the value in the dataframe dynamically
-                        df.loc[df['Risk'] == selected_risk, column] = new_value
+                        # Default to 0 for all other editable fields
+                        current_value_str = "0.0"  # Set default value to 0 for other fields
 
+                    # Display as text input for user to edit
+                    new_value = st.text_input(
+                        f"{column} (Risk {i + 1})", 
+                        value=current_value_str,  # Default value or original value set here
+                        key=f"text_input_{i}_{column}"
+                    )
+
+                    # Update the value in the DataFrame
+                    if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+                                "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
+                        try:
+                            # Convert input to float and store as a decimal fraction in the DataFrame
+                            df.loc[df['Risk'] == selected_risk, column] = float(new_value) / 100
+                        except ValueError:
+                            # If the input is invalid, keep the existing DataFrame value
+                            pass
+                    elif column == "mitigation cost":
+                        # Store the mitigation cost as a number
+                        try:
+                            df.loc[df['Risk'] == selected_risk, column] = float(new_value)
+                        except ValueError:
+                            # If the input is invalid, keep the existing DataFrame value
+                            pass
+                    else:
+                        # For other fields, store the original input directly
+                        df.loc[df['Risk'] == selected_risk, column] = new_value
+    if st.button("Save Changes"):
+        try:
+            # Load the existing workbook
+            book = load_workbook(excel_file_path)
+            sheet = book['Sheet1']  # Reference the specific sheet to update
+
+            # Find the row corresponding to the selected risk
+            risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
+
+            st.write(risk_row,'---------------risk row')
+
+            # Update only the changed fields in the sheet
+            for column in editable_fields:
+                # Get the column index (Excel is 1-indexed)
+                col_idx = df.columns.get_loc(column) + 2  # +2 to account for 0-indexing and 'Risk' column
+
+                # Write back the updated value
+                if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+                                "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
+                    sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
+                elif column == "mitigation cost":
+                    sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+                else:
+                    sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+
+            # Save the workbook
+            book.save(excel_file_path)
+            st.success(f"Updated {selected_risk} successfully!")
+        except Exception as e:
+            st.error(f"Error updating {selected_risk}: {e}")
     # Button to save the changes to Excel
     # if st.button("Save Changes to Excel"):
     #     # Save the updated dataframe back to the Excel file
@@ -1168,10 +1351,10 @@ elif st.session_state.page == 'risk-management':
     st.button("Dashboard",on_click = continue_to_dashboard)
 
 elif st.session_state.page == 'dashboard':
-    st.markdown(
-        f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
-        '<strong>WELCOME TO THE EU TAXONOMY DASHBOARD</strong>'
-        '</div>', unsafe_allow_html=True)
+    # st.markdown(
+    #     f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
+    #     '<strong>WELCOME TO THE EU TAXONOMY DASHBOARD</strong>'
+    #     '</div>', unsafe_allow_html=True)
     def load_lottie_url(url: str):
         response = requests.get(url)
         if response.status_code == 200:
@@ -1184,21 +1367,48 @@ elif st.session_state.page == 'dashboard':
     st.sidebar.header("Dashboard Navigation")
     options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
     if  options == "Data Overview":
-        def load_financial_model(file_path):
-            return pd.read_excel(file_path, sheet_name='Output', header=7)
 
-        # Load and clean data
-        df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
+        excel_file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+
+        df = pd.read_excel(excel_file_path, sheet_name='Output', header=7)
+
+        st.write(df, "Original DataFrame:")
+
+        st.write(df.columns, "Original Columns:")
+
+
         fixed_indices = [0, 1, 2, 9]
-        range_indices = list(range(11, 63))
+        range_indices = list(range(11, 60))
         indices_to_drop = fixed_indices + range_indices
         df_cleaned = df.drop(indices_to_drop)
-        df_cleaned = df_cleaned.dropna(axis=1, how='any')
+        # st.write(df_cleaned.columns,'----------------------cleaned')
+        # df_cleaned = df_cleaned.dropna(axis=1, how='any')
+
+        
+
+        
 
         # Dashboard title
         # st.set_page_config(page_title="Financial Analytics Dashboard", layout="wide")
-        st.title("Financial Analytics Dashboard")
-        st.markdown("#### Project Damietta CashFlow Analysis")
+        st.markdown("""
+            <style>
+                .custom-title {
+                    font-size: 32px;
+                    font-weight: 800;
+                    color: #FFFFFF; /* White text for contrast */
+                    background-color: #000c66; 
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+                    margin-bottom: 20px;
+                    letter-spacing: 1px; 
+                }
+                
+            </style>
+            <div class="custom-title">Financial Analytics Dashboard</div>
+            """, unsafe_allow_html=True
+        )
         st.divider()
 
         total_unitary_charge_phase_1 = df_cleaned.loc[8, 'Phase_1']
@@ -1212,49 +1422,74 @@ elif st.session_state.page == 'dashboard':
 
         # Summary Metrics Section
         st.markdown("""
-                <style>
-                    .custom-subheader {
-                        color: #000c66;
-                        font-size: 28px;
-                        font-weight: bold;
-                        margin-top: 20px; /* Optional: add space above the subheader */
-                        margin-bottom: 10px; /* Optional: add space below the subheader */
-                    }
-                </style>
-                <h2 class='custom-subheader'>Key Financial Metrics</h2>
-                """, unsafe_allow_html=True)
+            <style>
+                .custom-subheader {
+                    color: #000c66;
+                    font-size: 28px;
+                    font-weight: bold;
+                    margin-top: 20px; /* Optional: add space above the subheader */
+                    margin-bottom: 10px; /* Optional: add space below the subheader */
+                }
+            </style>
+            <h2 class='custom-subheader'>Key Financial Metrics</h2>
+            """, unsafe_allow_html=True
+        )
 
         # Create a container for the cards to ensure they are displayed inline
         cols = st.columns(4)
 
-        # Define a function to create a styled card
-        def create_metric_card(col, label, value):
+        # Define a function to create a styled metric card with different colors
+        def create_metric_card(col, label, value, color):
             col.markdown(
                 f"""
-                <div style="border-radius: 10px; padding: 10px; text-align: left; background-color: #ffffff; box-shadow:0 2px 8px rgba(0, 0, 0, 0.1),0 2px 8px rgba(0, 0, 0, 0.2);">
-                    <h4 style="color: #000000; margin: 0; font-size: 15px; font-weight:700">{label}</h4>
-                    <p style="font-size: 14px; color: #000000; margin: 0;">{value}</p>
+                <div style="
+                    border-radius: 10px; 
+                    padding: 15px; 
+                    text-align: left; 
+                    background-color: {color}; 
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                    color: white;
+                    margin-bottom: 15px;
+                ">
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 700;">{label}</h4>
+                    <p style="font-size: 16px; margin: 5px 0 0 0;">{value}</p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        # Create cards for each metric
-        create_metric_card(cols[0], "Total Unity Charge - Phase-1", f"{total_unitary_charge_phase_1:.2f} LE/m³")
-        create_metric_card(cols[1], "Total Unity Charge - Phase-2", f"{total_unitary_charge_phase_2:.2f} LE/m³")
-        create_metric_card(cols[2], "Equity IRR - Phase-1", f"{equity_irr_phase_1_percentage:.2f}%")
-        create_metric_card(cols[3], "Equity IRR - Phase-2", f"{equity_irr_phase_2_percentage:.2f}%")
+        # Create cards for each metric with custom colors
+        create_metric_card(cols[0], "Total Unity Charge - Phase 1", f"{total_unitary_charge_phase_1:.2f} LE/m³", "#00C9A7")  # Navy blue
+        create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
+        create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
+        create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
 
         st.divider()
 
         # Tariffs Comparison (Phase 1 vs Phase 2)
-        st.subheader("Comparison of Tariffs between Phase 1 and Phase 2")
+        st.markdown("""
+            <style>
+                .custom-header {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF; /* White text */
+                    background-color: #001f3f; /* Navy blue background */
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    text-align: left;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Optional shadow for depth */
+                    margin-bottom: 10px;
+                }
+            </style>
+            <div class="custom-header">Comparison of Tariffs between Phase 1 and Phase 2</div>
+            """, unsafe_allow_html=True
+        )
         tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:6].set_index('Unnamed: 4')
         fig = px.bar(
             tariffs,
             barmode='group',
             title="Tariff Comparison (Phase 1 vs Phase 2)",
-            color_discrete_sequence=px.colors.sequential.Teal,
+            color_discrete_sequence=["#001f3f", "#FFDD44"],
             labels={"value": "Tariff", "Unnamed: 4": "Metric"}
         )
         fig.update_layout(
@@ -1265,27 +1500,111 @@ elif st.session_state.page == 'dashboard':
         )
         st.plotly_chart(fig, use_container_width=True)
 
-        # Unitary Charge and Equity IRR Comparison
-        st.subheader("Unitary Charge & Equity IRR Analysis")
-        unitary_charge_irr = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[6:8].set_index('Unnamed: 4')
-        fig2 = go.Figure()
-        fig2.add_trace(go.Scatter(x=unitary_charge_irr.index, y=unitary_charge_irr['Phase_1'], mode='lines+markers', name='Phase 1', line=dict(color='royalblue', width=2)))
-        fig2.add_trace(go.Scatter(x=unitary_charge_irr.index, y=unitary_charge_irr['Phase_2'], mode='lines+markers', name='Phase 2', line=dict(color='orange', width=2)))
-        fig2.update_layout(
-            title="Unitary Charge and Equity IRR",
-            xaxis_title="Metric",
-            yaxis_title="Value",
-            title_font=dict(size=18, color='darkblue'),
-            legend=dict(orientation="h", y=1.1),
-            hovermode="x unified"
+        # Equity IRR Pie Chart
+        st.markdown("""
+            <style>
+                .custom-subheader {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF; /* White text for contrast */
+                    background-color: #FFDD44; /* Yellow background matching the dashboard theme */
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    text-align: left;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+                    margin-bottom: 10px;
+                }
+            </style>
+            <div class="custom-subheader">Equity IRR Distribution</div>
+            """, unsafe_allow_html=True
         )
-        st.plotly_chart(fig2, use_container_width=True)
+
+        # Prepare data for the pie chart
+        equity_irr_data = {
+            "Phase": ["Phase 1", "Phase 2"],
+            "Equity IRR (%)": [equity_irr_phase_1_percentage, equity_irr_phase_2_percentage]
+        }
+
+        # Create the pie chart
+        fig_pie = px.pie(
+            equity_irr_data,
+            names="Phase",
+            values="Equity IRR (%)",
+            title="Equity IRR Distribution between Phase 1 and Phase 2",
+            color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+
+        )
+
+        # Customize the layout for better aesthetics
+        fig_pie.update_traces(textposition="inside", textinfo="percent+label")
+        fig_pie.update_layout(
+            title_font=dict(size=18, color='darkblue'),
+            showlegend=True,
+            legend=dict(orientation="h", y=-0.1, x=0.5, xanchor="center")
+        )
+
+        # Display the pie chart in Streamlit
+        st.plotly_chart(fig_pie, use_container_width=True)
+
+
+        st.markdown("""
+            <style>
+                .custom-subheader {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF; /* White text for contrast */
+                    background-color: #001f3f; /* Yellow background matching the dashboard theme */
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    text-align: left;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+                    margin-bottom: 10px;
+                }
+            </style>
+            <div class="custom-subheader">Total Unitary Charge Comparison</div>
+            """, unsafe_allow_html=True
+        )
+
+        # Prepare data for the bar chart
+        unitary_charge_data = {
+            "Phase": ["Phase 1", "Phase 2"],
+            "Total Unitary Charge (LE/m³)": [total_unitary_charge_phase_1, total_unitary_charge_phase_2]
+        }
+
+        # Create the bar chart
+        fig_bar = px.bar(
+            unitary_charge_data,
+            x="Phase",
+            y="Total Unitary Charge (LE/m³)",
+            title="Total Unitary Charge for Phase 1 and Phase 2",
+            color="Phase",
+            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},  # Navy and yellow
+        )
+
+        # Customize layout and aesthetics
+        fig_bar.update_layout(
+            title_font=dict(size=18, color='darkblue'),
+            xaxis=dict(title="Phase"),
+            yaxis=dict(title="Total Unitary Charge (LE/m³)"),
+            plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+            paper_bgcolor="rgba(0,0,0,0)", # Transparent background for entire chart area
+            showlegend=False,               # Hides legend since labels are clear
+        )
+
+        # Add a shadow effect to the bars
+        fig_bar.update_traces(
+            marker=dict(line=dict(color="#333333", width=1.5))  # Adds an outline to each bar
+        )
+
+        # Display the bar chart in Streamlit
+        st.plotly_chart(fig_bar, use_container_width=True)
 
         # Conclusion or Additional Notes Section
         st.markdown("### Additional Insights")
         st.text("Provide additional analysis, insights, or explanations here to aid user interpretation.")
 
         st.write(df_cleaned)
+
     elif options == "User Details":
         col1,col2 = st.columns([3,5])
         with col1:

@@ -858,7 +858,7 @@ elif st.session_state.page == 'phase':
             workbook.save('Project Damietta_CashFlow Model_01b.xlsx')
 
 
-            st.write("Updated DataFrame:", df_cleaned)
+            # st.write("Updated DataFrame:", df_cleaned)
 
 
     
@@ -997,8 +997,8 @@ elif st.session_state.page == 'phase2':
         )
         st.session_state.field53 = custom_number_input("Labor (in LE'000s) - Phase 2", '53',"Enter",0.0)
         st.session_state.field62 = custom_number_input("Spare Part Cost  (in LE'000s) - Phase 2", '32',"Enter")
-        st.session_state.field58 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", '58',"Enter",0.0)
         st.session_state.field59 = custom_number_input("Energy Costs (LE/Kw) - Phase 2", '59',"Enter",0.0)
+        st.session_state.field58 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", '58',"Enter",0.0)
         if st.session_state.field58 != 0 and st.session_state.field59 != 0:
             st.write("Effective Price - Energy Costs (LE/m³) - Phase 2",st.session_state.field58*st.session_state.field59)
             st.session_state.field60 = st.session_state.field58*st.session_state.field59
@@ -1183,7 +1183,7 @@ elif st.session_state.page == 'phase2':
         workbook.save(file_path)
 
 
-        st.write("Updated DataFrame:", df_cleaned)
+        # st.write("Updated DataFrame:", df_cleaned)
 
 elif st.session_state.page == 'risk-management':
     st.markdown(
@@ -1218,11 +1218,8 @@ elif st.session_state.page == 'risk-management':
     
     df = df.iloc[:, 1:]
 
-    # df['mitigation cost'] = df['mitigation cost'].fillna(0)
 
     df = df.dropna(axis=1, how='any')
-
-    st.write(df,'=====original df')
 
     # Extract risk list
     risk_list = df['Risk'].dropna().tolist()
@@ -1332,7 +1329,7 @@ elif st.session_state.page == 'risk-management':
             except Exception as e:
                 st.error(f"Error saving changes: {e}")
 
-            st.write(df)
+            # st.write(df)
 
     if st.session_state.page == 'risk-management':
         st.button("Back" , on_click = continue_to_phase2)

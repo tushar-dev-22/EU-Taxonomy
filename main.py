@@ -20,6 +20,24 @@ st.set_page_config(
 )
 
 
+@st.cache_data
+def load_financial_model(file_path,sheet_name,header):
+    file_extension = Path(file_path).suffix.lower()[1:]
+
+    if file_extension == 'xlsx':
+        return pd.read_excel(file_path, sheet_name=sheet_name, header=header, engine='openpyxl')
+
+    elif file_extension == 'xls':
+        st.write('its a xls file')
+        return pd.read_excel(file_path, sheet_name=sheet_name, header=header)
+    elif file_extension == 'csv':
+        return pd.read_csv(file_path)
+    else:
+        raise Exception("File not supported")
+    
+
+file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+
 
 # Define a common background color
 bg_color = "#000C66"  # Adjust this color as needed
@@ -527,23 +545,7 @@ if st.session_state.page == 'main':
 #Make changes for the next page here
 elif st.session_state.page == 'phase':
 
-    # Load the CSV
-    @st.cache_data
-    def load_financial_model(file_path):
-        file_extension = Path(file_path).suffix.lower()[1:]
-        
-        if file_extension == 'xlsx':
-            return pd.read_excel(file_path, sheet_name='Inp_C', header=3, engine='openpyxl')
-        elif file_extension == 'xls':
-            return pd.read_excel(file_path, sheet_name='Inp_C', header=3)
-        elif file_extension == 'csv':
-            return pd.read_csv(file_path)
-        else:
-            raise Exception("File not supported")
-        
-
-    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
-    df = load_financial_model(file_path)
+    df = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
     df_cleaned = df[df.notna().any(axis=1)]
 
@@ -555,6 +557,11 @@ elif st.session_state.page == 'phase':
     df_cleaned['Phase_2'] = df_cleaned['Phase_2'].fillna(0)
 
     df_cleaned = df_cleaned.dropna(axis=1, how='any')
+
+    # if 'df_cleaned' not in st.session_state:
+    #     st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+
+    # df_cleaned = st.session_state.df_cleaned
 
     # st.write(df_cleaned,"after changes dataframe")
 
@@ -823,11 +830,14 @@ elif st.session_state.page == 'phase':
             df_cleaned.at[81, 'Phase_1'] = st.session_state.drcitrp1
 
 
-        # Load the data
-        file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
-        df_cleaned = load_financial_model(file_path)
+        st.write(df_cleaned)
 
-        # Check if file is Excel format and proceed with cell updates
+        if 'df_cleaned' not in st.session_state:
+            st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+
+        df_cleaned = st.session_state.df_cleaned
+
+
         file_extension = Path(file_path).suffix.lower()[1:]
         if file_extension in ['xlsx', 'xls']:
             workbook = load_workbook(file_path)
@@ -864,9 +874,6 @@ elif st.session_state.page == 'phase':
             sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
             sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
             sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
-
-            # 1
-
             sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
             sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
             sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
@@ -877,29 +884,11 @@ elif st.session_state.page == 'phase':
             workbook.save('Project Damietta_CashFlow Model_01b.xlsx')
 
 
-            # st.write("Updated DataFrame:", df_cleaned)
-
 
     
 elif st.session_state.page == 'phase2':
 
-    # Load the CSV
-    @st.cache_data
-    def load_financial_model(file_path):
-        file_extension = Path(file_path).suffix.lower()[1:]
-        
-        if file_extension == 'xlsx':
-            return pd.read_excel(file_path, sheet_name='Inp_C', header=3, engine='openpyxl')
-        elif file_extension == 'xls':
-            return pd.read_excel(file_path, sheet_name='Inp_C', header=3)
-        elif file_extension == 'csv':
-            return pd.read_csv(file_path)
-        else:
-            raise Exception("File not supported")
-        
-
-    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
-    df = load_financial_model(file_path)
+    df = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
 
     df_cleaned = df[df.notna().any(axis=1)]
@@ -913,6 +902,11 @@ elif st.session_state.page == 'phase2':
     df_cleaned['Phase_2'] = df_cleaned['Phase_2'].fillna(0)
 
     df_cleaned = df_cleaned.dropna(axis=1, how='any')
+
+    # if 'df_cleaned' not in st.session_state:
+    #     st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+
+    # df_cleaned = st.session_state.df_cleaned
     
 
     def custom_number_input(label, key, placeholder,value=0.0):
@@ -1170,11 +1164,15 @@ elif st.session_state.page == 'phase2':
         df_cleaned.at[81, 'Phase_2'] = st.session_state.drcitrp2
 
 
-    # Load the data
-    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
-    df_cleaned = load_financial_model(file_path)
+    st.write(df_cleaned)
 
-    # Check if file is Excel format and proceed with cell updates
+
+    if 'df_cleaned' not in st.session_state:
+        st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+
+        df_cleaned = st.session_state.df_cleaned
+
+
     file_extension = Path(file_path).suffix.lower()[1:]
     if file_extension in ['xlsx', 'xls']:
         workbook = load_workbook(file_path)
@@ -1226,8 +1224,6 @@ elif st.session_state.page == 'risk-management':
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
         '<strong>Risk Assesment</strong>'
         '</div>', unsafe_allow_html=True)
-    
-    excel_file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
 
 
     if 'editable_values' not in st.session_state:
@@ -1246,27 +1242,27 @@ elif st.session_state.page == 'risk-management':
 
     # Load the Excel file into a Pandas DataFrame
     # df = pd.read_excel(excel_file_path, sheet_name='Sheet1', header=4)
-    def load_financial_model(file_path):
-        return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
+    # def load_financial_model(file_path):
+    #     return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
     
-    df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
+    # df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
 
-    @st.cache_data
-    def load_financial_model(file_path):
-        file_extension = Path(file_path).suffix.lower()[1:]
+    # @st.cache_data
+    # def load_financial_model(file_path):
+    #     file_extension = Path(file_path).suffix.lower()[1:]
         
-        if file_extension == 'xlsx':
-            return pd.read_excel(file_path, sheet_name='Sheet1',header=4, engine='openpyxl')
-        elif file_extension == 'xls':
-            return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
-        elif file_extension == 'csv':
-            return pd.read_csv(file_path)
-        else:
-            raise Exception("File not supported")
-        
+    #     if file_extension == 'xlsx':
+    #         return pd.read_excel(file_path, sheet_name='Sheet1',header=4, engine='openpyxl')
+    #     elif file_extension == 'xls':
+    #         return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
+    #     elif file_extension == 'csv':
+    #         return pd.read_csv(file_path)
+    #     else:
+    #         raise Exception("File not supported")
 
-    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
-    df = load_financial_model(file_path)
+    
+        
+    df = load_financial_model(file_path,sheet_name='Sheet1',header=4)
     df = df.iloc[:, 1:]
     df = df.dropna(axis=1, how='any')
 
@@ -1374,13 +1370,13 @@ elif st.session_state.page == 'risk-management':
                             sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
                         else:
                             sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-                book.save(excel_file_path)
+                book.save(file_path)
                 st.success("All changes have been saved successfully!")
 
             except Exception as e:
                 st.error(f"Error saving changes: {e}")
 
-            # st.write(df)
+            st.write(df)
 
     if st.session_state.page == 'risk-management':
         st.button("Back" , on_click = continue_to_phase2)

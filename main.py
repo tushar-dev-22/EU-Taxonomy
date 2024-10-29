@@ -832,56 +832,56 @@ elif st.session_state.page == 'phase':
 
         st.write(df_cleaned)
 
-        if 'df_cleaned' not in st.session_state:
-            st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+        # if 'df_cleaned' not in st.session_state:
+        #     st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
-        df_cleaned = st.session_state.df_cleaned
-
-
-        file_extension = Path(file_path).suffix.lower()[1:]
-        if file_extension in ['xlsx', 'xls']:
-            workbook = load_workbook(file_path)
-            sheet = workbook['Inp_C']
+        # df_cleaned = st.session_state.df_cleaned
 
 
-        if 'Phase_1' in df_cleaned.columns:
-            sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
-            sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
-            sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
-            sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
-            sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
-            sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
-            sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
-            sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1']) 
-            sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
-            sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
-            sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
-            sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
-            sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1']) 
-            sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
-            sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
-            sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
-            sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
-            sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
-            sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
-            sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
-            sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
-            sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
-            sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
-            sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
-            sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
-            sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
-            sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
-            sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
-            sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
-            sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
-            sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
-            sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
-            sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
-            sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+        # file_extension = Path(file_path).suffix.lower()[1:]
+        # if file_extension in ['xlsx', 'xls']:
+        #     workbook = load_workbook(file_path)
+        #     sheet = workbook['Inp_C']
 
 
-            workbook.save('Project Damietta_CashFlow Model_01b.xlsx')
+        # if 'Phase_1' in df_cleaned.columns:
+        #     sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
+        #     sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
+        #     sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
+        #     sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
+        #     sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
+        #     sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
+        #     sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
+        #     sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1']) 
+        #     sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
+        #     sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
+        #     sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
+        #     sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
+        #     sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1']) 
+        #     sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
+        #     sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
+        #     sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
+        #     sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
+        #     sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
+        #     sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
+        #     sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
+        #     sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
+        #     sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
+        #     sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
+        #     sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
+        #     sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
+        #     sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
+        #     sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
+        #     sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
+        #     sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
+        #     sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
+        #     sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
+        #     sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
+        #     sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
+        #     sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+
+
+        #     workbook.save('Project Damietta_CashFlow Model_01b.xlsx')
 
 
 
@@ -1167,54 +1167,54 @@ elif st.session_state.page == 'phase2':
     st.write(df_cleaned)
 
 
-    if 'df_cleaned' not in st.session_state:
-        st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+    # if 'df_cleaned' not in st.session_state:
+    #     st.session_state.df_cleaned = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
-        df_cleaned = st.session_state.df_cleaned
-
-
-    file_extension = Path(file_path).suffix.lower()[1:]
-    if file_extension in ['xlsx', 'xls']:
-        workbook = load_workbook(file_path)
-        sheet = workbook['Inp_C']
-
-    if 'Phase_2' in df_cleaned.columns:
-        sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
-        sheet.cell(row=14, column=11, value=df_cleaned.at[9, 'Phase_2'])
-        sheet.cell(row=15, column=11, value=df_cleaned.at[10, 'Phase_2']) 
-        sheet.cell(row=16, column=11, value=df_cleaned.at[11, 'Phase_2']) 
-        sheet.cell(row=19, column=11, value=df_cleaned.at[14, 'Phase_2']) 
-        sheet.cell(row=20, column=11, value=df_cleaned.at[15, 'Phase_2']) 
-        sheet.cell(row=21, column=11, value=df_cleaned.at[16, 'Phase_2']) 
-        sheet.cell(row=24, column=11, value=df_cleaned.at[19, 'Phase_2']) 
-        sheet.cell(row=25, column=11, value=df_cleaned.at[20, 'Phase_2']) 
-        sheet.cell(row=26, column=11, value=df_cleaned.at[21, 'Phase_2']) 
-        sheet.cell(row=30, column=11, value=df_cleaned.at[25, 'Phase_2']) 
-        sheet.cell(row=31, column=11, value=df_cleaned.at[26, 'Phase_2']  / 100) 
-        sheet.cell(row=32, column=11, value=df_cleaned.at[27, 'Phase_2']) 
-        sheet.cell(row=37, column=11, value=df_cleaned.at[32, 'Phase_2'] / 100) 
-        sheet.cell(row=38, column=11, value=df_cleaned.at[33, 'Phase_2'] / 100) 
-        sheet.cell(row=41, column=11, value=df_cleaned.at[36, 'Phase_2'] / 100) 
-        sheet.cell(row=44, column=11, value=df_cleaned.at[39, 'Phase_2'] / 100) 
-        sheet.cell(row=47, column=11, value=df_cleaned.at[42, 'Phase_2'] / 100) 
-        sheet.cell(row=48, column=11, value=df_cleaned.at[43, 'Phase_2'] / 100) 
-        sheet.cell(row=62, column=11, value=df_cleaned.at[57, 'Phase_2']) 
-        sheet.cell(row=63, column=11, value=df_cleaned.at[58, 'Phase_2']) 
-        sheet.cell(row=64, column=11, value=df_cleaned.at[59, 'Phase_2']) 
-        sheet.cell(row=65, column=11, value=df_cleaned.at[60, 'Phase_2']) 
-        sheet.cell(row=68, column=11, value=df_cleaned.at[63, 'Phase_2']) 
-        sheet.cell(row=69, column=11, value=df_cleaned.at[64, 'Phase_2']) 
-        sheet.cell(row=70, column=11, value=df_cleaned.at[65, 'Phase_2']) 
-        sheet.cell(row=71, column=11, value=df_cleaned.at[66, 'Phase_2']) 
-        sheet.cell(row=72, column=11, value=df_cleaned.at[67, 'Phase_2']) 
-        sheet.cell(row=78, column=11, value=df_cleaned.at[73, 'Phase_2'] / 100)
-        sheet.cell(row=79, column=11, value=df_cleaned.at[74, 'Phase_2'] / 100)
-        sheet.cell(row=80, column=11, value=df_cleaned.at[75, 'Phase_2'] / 100)
-        sheet.cell(row=84, column=11, value=df_cleaned.at[79, 'Phase_2']  / 100)
-        sheet.cell(row=86, column=11, value=df_cleaned.at[81, 'Phase_2']  / 100)
+    #     df_cleaned = st.session_state.df_cleaned
 
 
-        workbook.save(file_path)
+    # file_extension = Path(file_path).suffix.lower()[1:]
+    # if file_extension in ['xlsx', 'xls']:
+    #     workbook = load_workbook(file_path)
+    #     sheet = workbook['Inp_C']
+
+    # if 'Phase_2' in df_cleaned.columns:
+    #     sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
+    #     sheet.cell(row=14, column=11, value=df_cleaned.at[9, 'Phase_2'])
+    #     sheet.cell(row=15, column=11, value=df_cleaned.at[10, 'Phase_2']) 
+    #     sheet.cell(row=16, column=11, value=df_cleaned.at[11, 'Phase_2']) 
+    #     sheet.cell(row=19, column=11, value=df_cleaned.at[14, 'Phase_2']) 
+    #     sheet.cell(row=20, column=11, value=df_cleaned.at[15, 'Phase_2']) 
+    #     sheet.cell(row=21, column=11, value=df_cleaned.at[16, 'Phase_2']) 
+    #     sheet.cell(row=24, column=11, value=df_cleaned.at[19, 'Phase_2']) 
+    #     sheet.cell(row=25, column=11, value=df_cleaned.at[20, 'Phase_2']) 
+    #     sheet.cell(row=26, column=11, value=df_cleaned.at[21, 'Phase_2']) 
+    #     sheet.cell(row=30, column=11, value=df_cleaned.at[25, 'Phase_2']) 
+    #     sheet.cell(row=31, column=11, value=df_cleaned.at[26, 'Phase_2']  / 100) 
+    #     sheet.cell(row=32, column=11, value=df_cleaned.at[27, 'Phase_2']) 
+    #     sheet.cell(row=37, column=11, value=df_cleaned.at[32, 'Phase_2'] / 100) 
+    #     sheet.cell(row=38, column=11, value=df_cleaned.at[33, 'Phase_2'] / 100) 
+    #     sheet.cell(row=41, column=11, value=df_cleaned.at[36, 'Phase_2'] / 100) 
+    #     sheet.cell(row=44, column=11, value=df_cleaned.at[39, 'Phase_2'] / 100) 
+    #     sheet.cell(row=47, column=11, value=df_cleaned.at[42, 'Phase_2'] / 100) 
+    #     sheet.cell(row=48, column=11, value=df_cleaned.at[43, 'Phase_2'] / 100) 
+    #     sheet.cell(row=62, column=11, value=df_cleaned.at[57, 'Phase_2']) 
+    #     sheet.cell(row=63, column=11, value=df_cleaned.at[58, 'Phase_2']) 
+    #     sheet.cell(row=64, column=11, value=df_cleaned.at[59, 'Phase_2']) 
+    #     sheet.cell(row=65, column=11, value=df_cleaned.at[60, 'Phase_2']) 
+    #     sheet.cell(row=68, column=11, value=df_cleaned.at[63, 'Phase_2']) 
+    #     sheet.cell(row=69, column=11, value=df_cleaned.at[64, 'Phase_2']) 
+    #     sheet.cell(row=70, column=11, value=df_cleaned.at[65, 'Phase_2']) 
+    #     sheet.cell(row=71, column=11, value=df_cleaned.at[66, 'Phase_2']) 
+    #     sheet.cell(row=72, column=11, value=df_cleaned.at[67, 'Phase_2']) 
+    #     sheet.cell(row=78, column=11, value=df_cleaned.at[73, 'Phase_2'] / 100)
+    #     sheet.cell(row=79, column=11, value=df_cleaned.at[74, 'Phase_2'] / 100)
+    #     sheet.cell(row=80, column=11, value=df_cleaned.at[75, 'Phase_2'] / 100)
+    #     sheet.cell(row=84, column=11, value=df_cleaned.at[79, 'Phase_2']  / 100)
+    #     sheet.cell(row=86, column=11, value=df_cleaned.at[81, 'Phase_2']  / 100)
+
+
+    #     workbook.save(file_path)
 
 
         # st.write("Updated DataFrame:", df_cleaned)
@@ -1263,7 +1263,12 @@ elif st.session_state.page == 'risk-management':
     
         
     df = load_financial_model(file_path,sheet_name='Sheet1',header=4)
+
+    
     df = df.iloc[:, 1:]
+
+    df = df.drop([37,38])
+   
     df = df.dropna(axis=1, how='any')
 
     # Extract risk list
@@ -1344,39 +1349,39 @@ elif st.session_state.page == 'risk-management':
                             pass
                     else:
                         df.loc[df['Risk'] == selected_risk, column] = new_value
-    if st.button("Save Changes"):
-        if "Select a risk" in st.session_state.selected_risks:
-            st.error("Please select all 15 risks before saving changes.")
-        else:
-            try:
-                file_extension = Path(file_path).suffix.lower()[1:]
-                if file_extension in ['xlsx', 'xls']:
-                    book = load_workbook(file_path)
-                    sheet = book['Inp_C']
+    # if st.button("Save Changes"):
+    #     if "Select a risk" in st.session_state.selected_risks:
+    #         st.error("Please select all 15 risks before saving changes.")
+    #     else:
+    #         try:
+    #             file_extension = Path(file_path).suffix.lower()[1:]
+    #             if file_extension in ['xlsx', 'xls']:
+    #                 book = load_workbook(file_path)
+    #                 sheet = book['Inp_C']
 
-                # Iterate through all selected risks and update corresponding rows in the Excel sheet
-                for i, selected_risk in enumerate(st.session_state.selected_risks):
-                    # Find the row corresponding to the selected risk
-                    risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
+    #             # Iterate through all selected risks and update corresponding rows in the Excel sheet
+    #             for i, selected_risk in enumerate(st.session_state.selected_risks):
+    #                 # Find the row corresponding to the selected risk
+    #                 risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
 
-                    # Update only the changed fields in the sheet
-                    for column in editable_fields:
-                        col_idx = df.columns.get_loc(column) + 2  
+    #                 # Update only the changed fields in the sheet
+    #                 for column in editable_fields:
+    #                     col_idx = df.columns.get_loc(column) + 2  
 
-                        if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
-                                    "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
-                            sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
-                        elif column == "mitigation cost":
-                            sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-                        else:
-                            sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-                book.save(file_path)
-                st.success("All changes have been saved successfully!")
+    #                     if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+    #                                 "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
+    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
+    #                     elif column == "mitigation cost":
+    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+    #                     else:
+    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+    #             book.save(file_path)
+    #             st.success("All changes have been saved successfully!")
 
-            except Exception as e:
-                st.error(f"Error saving changes: {e}")
+    #         except Exception as e:
+    #             st.error(f"Error saving changes: {e}")
 
-            st.write(df)
+    #         st.write(df)
 
     if st.session_state.page == 'risk-management':
         st.button("Back" , on_click = continue_to_phase2)

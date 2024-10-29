@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 import streamlit as st
 from dateutil.relativedelta import relativedelta
 from openpyxl import load_workbook
@@ -529,8 +530,20 @@ elif st.session_state.page == 'phase':
     # Load the CSV
     @st.cache_data
     def load_financial_model(file_path):
-        return pd.read_excel(file_path, sheet_name='Inp_C',header=3)
-    df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
+        file_extension = Path(file_path).suffix.lower()[1:]
+        
+        if file_extension == 'xlsx':
+            return pd.read_excel(file_path, sheet_name='Inp_C', header=3, engine='openpyxl')
+        elif file_extension == 'xls':
+            return pd.read_excel(file_path, sheet_name='Inp_C', header=3)
+        elif file_extension == 'csv':
+            return pd.read_csv(file_path)
+        else:
+            raise Exception("File not supported")
+        
+
+    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+    df = load_financial_model(file_path)
 
     df_cleaned = df[df.notna().any(axis=1)]
 
@@ -810,10 +823,16 @@ elif st.session_state.page == 'phase':
             df_cleaned.at[81, 'Phase_1'] = st.session_state.drcitrp1
 
 
+        # Load the data
+        file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+        df_cleaned = load_financial_model(file_path)
 
-        workbook = load_workbook('Project Damietta_CashFlow Model_01b.xlsx')
+        # Check if file is Excel format and proceed with cell updates
+        file_extension = Path(file_path).suffix.lower()[1:]
+        if file_extension in ['xlsx', 'xls']:
+            workbook = load_workbook(file_path)
+            sheet = workbook['Inp_C']
 
-        sheet = workbook['Inp_C']
 
         if 'Phase_1' in df_cleaned.columns:
             sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
@@ -867,8 +886,21 @@ elif st.session_state.page == 'phase2':
     # Load the CSV
     @st.cache_data
     def load_financial_model(file_path):
-        return pd.read_excel(file_path, sheet_name='Inp_C',header=3)
-    df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
+        file_extension = Path(file_path).suffix.lower()[1:]
+        
+        if file_extension == 'xlsx':
+            return pd.read_excel(file_path, sheet_name='Inp_C', header=3, engine='openpyxl')
+        elif file_extension == 'xls':
+            return pd.read_excel(file_path, sheet_name='Inp_C', header=3)
+        elif file_extension == 'csv':
+            return pd.read_csv(file_path)
+        else:
+            raise Exception("File not supported")
+        
+
+    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+    df = load_financial_model(file_path)
+
 
     df_cleaned = df[df.notna().any(axis=1)]
 
@@ -1138,11 +1170,15 @@ elif st.session_state.page == 'phase2':
         df_cleaned.at[81, 'Phase_2'] = st.session_state.drcitrp2
 
 
+    # Load the data
     file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+    df_cleaned = load_financial_model(file_path)
 
-    workbook = load_workbook(file_path)
-
-    sheet = workbook['Inp_C']
+    # Check if file is Excel format and proceed with cell updates
+    file_extension = Path(file_path).suffix.lower()[1:]
+    if file_extension in ['xlsx', 'xls']:
+        workbook = load_workbook(file_path)
+        sheet = workbook['Inp_C']
 
     if 'Phase_2' in df_cleaned.columns:
         sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
@@ -1215,10 +1251,23 @@ elif st.session_state.page == 'risk-management':
     
     df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
 
-    
+    @st.cache_data
+    def load_financial_model(file_path):
+        file_extension = Path(file_path).suffix.lower()[1:]
+        
+        if file_extension == 'xlsx':
+            return pd.read_excel(file_path, sheet_name='Sheet1',header=4, engine='openpyxl')
+        elif file_extension == 'xls':
+            return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
+        elif file_extension == 'csv':
+            return pd.read_csv(file_path)
+        else:
+            raise Exception("File not supported")
+        
+
+    file_path = 'Project Damietta_CashFlow Model_01b.xlsx'
+    df = load_financial_model(file_path)
     df = df.iloc[:, 1:]
-
-
     df = df.dropna(axis=1, how='any')
 
     # Extract risk list
@@ -1304,8 +1353,10 @@ elif st.session_state.page == 'risk-management':
             st.error("Please select all 15 risks before saving changes.")
         else:
             try:
-                book = load_workbook(excel_file_path)
-                sheet = book['Sheet1'] 
+                file_extension = Path(file_path).suffix.lower()[1:]
+                if file_extension in ['xlsx', 'xls']:
+                    book = load_workbook(file_path)
+                    sheet = book['Inp_C']
 
                 # Iterate through all selected risks and update corresponding rows in the Excel sheet
                 for i, selected_risk in enumerate(st.session_state.selected_risks):

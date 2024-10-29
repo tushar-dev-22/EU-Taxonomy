@@ -19,6 +19,7 @@ st.set_page_config(
 )
 
 
+
 # Define a common background color
 bg_color = "#000C66"  # Adjust this color as needed
 check_phase1 = False
@@ -667,7 +668,7 @@ elif st.session_state.page == 'phase':
 
             st.markdown(
                 '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
-                'Variable Operating Costs - Phase 1'
+                'Variable Operating Costs Per Year - Phase 1'
                 '</div>',
                 unsafe_allow_html=True
             )
@@ -990,7 +991,7 @@ elif st.session_state.page == 'phase2':
     with col2:
         st.markdown(
             '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
-            'Variable Operating Costs - Phase 2'
+            'Variable Operating Costs Per Year - Phase 2'
             '</div>',
             unsafe_allow_html=True
         )
@@ -1208,8 +1209,20 @@ elif st.session_state.page == 'risk-management':
         }
 
     # Load the Excel file into a Pandas DataFrame
-    df = pd.read_excel(excel_file_path, sheet_name='Sheet1', header=4)
+    # df = pd.read_excel(excel_file_path, sheet_name='Sheet1', header=4)
+    def load_financial_model(file_path):
+        return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
+    
+    df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
+
+    
     df = df.iloc[:, 1:]
+
+    # df['mitigation cost'] = df['mitigation cost'].fillna(0)
+
+    df = df.dropna(axis=1, how='any')
+
+    st.write(df,'=====original df')
 
     # Extract risk list
     risk_list = df['Risk'].dropna().tolist()
@@ -1315,9 +1328,12 @@ elif st.session_state.page == 'risk-management':
                             sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
                 book.save(excel_file_path)
                 st.success("All changes have been saved successfully!")
+
             except Exception as e:
                 st.error(f"Error saving changes: {e}")
-    st.write(df)
+
+            st.write(df)
+
     if st.session_state.page == 'risk-management':
         st.button("Back" , on_click = continue_to_phase2)
     st.button("Dashboard",on_click = continue_to_dashboard)
@@ -1327,6 +1343,8 @@ elif st.session_state.page == 'dashboard':
     #     f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
     #     '<strong>WELCOME TO THE EU TAXONOMY DASHBOARD</strong>'
     #     '</div>', unsafe_allow_html=True)
+
+    
     def load_lottie_url(url: str):
         response = requests.get(url)
         if response.status_code == 200:
@@ -1339,255 +1357,235 @@ elif st.session_state.page == 'dashboard':
     st.sidebar.header("Dashboard Navigation")
     options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
     if  options == "Data Overview":
-
-        # @st.cache_data
+        @st.cache_data
         def load_financial_model(file_path):
-            return pd.read_excel(file_path, sheet_name='Output')
-        
+            return pd.read_excel(file_path, sheet_name='Output',header=7)
+
         df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
 
-        st.write(df)
-
-
-        fixed_indices = [0,1,2,3,4,5,7,8,9]
-        range_indices = list(range(18, 65))
-        indices_to_drop = fixed_indices + range_indices
-
-        df_cleaned = df.drop(indices_to_drop)
-
-        # df.columns = df.columns.map(str)
-
-        # fixed_indices = [0, 1, 2, 9]
-        # range_indices = list(range(11, 60))
-        # indices_to_drop = fixed_indices + range_indices
-        # df_cleaned = df.drop(indices_to_drop)
-
         
-    
-        # st.write(df_cleaned.columns,'----------------------cleaned')
-        # df_cleaned = df_cleaned.dropna(axis=1, how='any')
+        fixed_indices = [0, 1, 2,3,9]
 
+        range_indices = list(range(11, 63))
 
-        
+        indcies_to_drop = range_indices + fixed_indices
 
-        
+        df_cleaned = df.drop(fixed_indices)
 
-        # # Dashboard title
-        # # st.set_page_config(page_title="Financial Analytics Dashboard", layout="wide")
-        # st.markdown("""
-        #     <style>
-        #         .custom-title {
-        #             font-size: 32px;
-        #             font-weight: 800;
-        #             color: #FFFFFF; /* White text for contrast */
-        #             background-color: #000c66; 
-        #             padding: 15px 20px;
-        #             border-radius: 10px;
-        #             text-align: center;
-        #             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
-        #             margin-bottom: 20px;
-        #             letter-spacing: 1px; 
-        #         }
+        # Dashboard title
+        # st.set_page_config(page_title="Financial Analytics Dashboard", layout="wide")
+        st.markdown("""
+            <style>
+                .custom-title {
+                    font-size: 32px;
+                    font-weight: 800;
+                    color: #FFFFFF; /* White text for contrast */
+                    background-color: #000c66; 
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    text-align: center;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
+                    margin-bottom: 20px;
+                    letter-spacing: 1px; 
+                }
                 
-        #     </style>
-        #     <div class="custom-title">Financial Analytics Dashboard</div>
-        #     """, unsafe_allow_html=True
-        # )
-        # st.divider()
+            </style>
+            <div class="custom-title">Financial Analytics Dashboard</div>
+            """, unsafe_allow_html=True
+        )
+        st.divider()
 
-        # total_unitary_charge_phase_1 = df_cleaned.loc[8, 'Phase_1']
-        # total_unitary_charge_phase_2 = df_cleaned.loc[8, 'Phase_2']
-        # equity_irr_phase_1 = df_cleaned.loc[10, 'Phase_1']
-        # equity_irr_phase_2 = df_cleaned.loc[10, 'Phase_2']
+        total_unitary_charge_phase_1 = df_cleaned.loc[8, 'Phase_1']
+        total_unitary_charge_phase_2 = df_cleaned.loc[8, 'Phase_2']
+        equity_irr_phase_1 = df_cleaned.loc[10, 'Phase_1']
+        equity_irr_phase_2 = df_cleaned.loc[10, 'Phase_2']
 
-        # # Convert IRR to percentage
-        # equity_irr_phase_1_percentage = equity_irr_phase_1 * 100  
-        # equity_irr_phase_2_percentage = equity_irr_phase_2 * 100
+        # Convert IRR to percentage
+        equity_irr_phase_1_percentage = equity_irr_phase_1 * 100  
+        equity_irr_phase_2_percentage = equity_irr_phase_2 * 100
 
-        # # Summary Metrics Section
-        # st.markdown("""
-        #     <style>
-        #         .custom-subheader {
-        #             color: #000c66;
-        #             font-size: 28px;
-        #             font-weight: bold;
-        #             margin-top: 20px; /* Optional: add space above the subheader */
-        #             margin-bottom: 10px; /* Optional: add space below the subheader */
-        #         }
-        #     </style>
-        #     <h2 class='custom-subheader'>Key Financial Metrics</h2>
-        #     """, unsafe_allow_html=True
-        # )
+        # Summary Metrics Section
+        st.markdown("""
+            <style>
+                .custom-subheader {
+                    color: #000c66;
+                    font-size: 28px;
+                    font-weight: bold;
+                    margin-top: 20px; /* Optional: add space above the subheader */
+                    margin-bottom: 10px; /* Optional: add space below the subheader */
+                }
+            </style>
+            <h2 class='custom-subheader'>Key Financial Metrics</h2>
+            """, unsafe_allow_html=True
+        )
 
-        # # Create a container for the cards to ensure they are displayed inline
-        # cols = st.columns(4)
+        # Create a container for the cards to ensure they are displayed inline
+        cols = st.columns(4)
 
-        # # Define a function to create a styled metric card with different colors
-        # def create_metric_card(col, label, value, color):
-        #     col.markdown(
-        #         f"""
-        #         <div style="
-        #             border-radius: 10px; 
-        #             padding: 15px; 
-        #             text-align: left; 
-        #             background-color: {color}; 
-        #             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        #             color: white;
-        #             margin-bottom: 15px;
-        #         ">
-        #             <h4 style="margin: 0; font-size: 15px; font-weight: 700;">{label}</h4>
-        #             <p style="font-size: 16px; margin: 5px 0 0 0;">{value}</p>
-        #         </div>
-        #         """,
-        #         unsafe_allow_html=True
-        #     )
+        # Define a function to create a styled metric card with different colors
+        def create_metric_card(col, label, value, color):
+            col.markdown(
+                f"""
+                <div style="
+                    border-radius: 10px; 
+                    padding: 15px; 
+                    text-align: left; 
+                    background-color: {color}; 
+                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                    color: white;
+                    margin-bottom: 15px;
+                ">
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 700;">{label}</h4>
+                    <p style="font-size: 16px; margin: 5px 0 0 0;">{value}</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        # # Create cards for each metric with custom colors
-        # create_metric_card(cols[0], "Total Unity Charge - Phase 1", f"{total_unitary_charge_phase_1:.2f} LE/m³", "#00C9A7")  # Navy blue
-        # create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
-        # create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
-        # create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
+        # Create cards for each metric with custom colors
+        create_metric_card(cols[0], "Total Unity Charge - Phase 1", f"{total_unitary_charge_phase_1:.2f} LE/m³", "#00C9A7")  # Navy blue
+        create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
+        create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
+        create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
 
-        # st.divider()
+        st.divider()
 
-        # # Tariffs Comparison (Phase 1 vs Phase 2)
-        # st.markdown("""
-        #     <style>
-        #         .custom-header {
-        #             font-size: 24px;
-        #             font-weight: 700;
-        #             color: #FFFFFF; /* White text */
-        #             background-color: #001f3f; /* Navy blue background */
-        #             padding: 10px 15px;
-        #             border-radius: 8px;
-        #             text-align: left;
-        #             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Optional shadow for depth */
-        #             margin-bottom: 10px;
-        #         }
-        #     </style>
-        #     <div class="custom-header">Comparison of Tariffs between Phase 1 and Phase 2</div>
-        #     """, unsafe_allow_html=True
-        # )
-        # tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:6].set_index('Unnamed: 4')
-        # fig = px.bar(
-        #     tariffs,
-        #     barmode='group',
-        #     title="Tariff Comparison (Phase 1 vs Phase 2)",
-        #     color_discrete_sequence=["#001f3f", "#FFDD44"],
-        #     labels={"value": "Tariff", "Unnamed: 4": "Metric"}
-        # )
-        # fig.update_layout(
-        #     title_font=dict(size=18, color='darkblue'),
-        #     xaxis=dict(title="Metric"),
-        #     yaxis=dict(title="Tariff Value"),
-        #     legend=dict(orientation="h", y=1.1)
-        # )
-        # st.plotly_chart(fig, use_container_width=True)
+        # Tariffs Comparison (Phase 1 vs Phase 2)
+        st.markdown("""
+            <style>
+                .custom-header {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF; /* White text */
+                    background-color: #001f3f; /* Navy blue background */
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    text-align: left;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Optional shadow for depth */
+                    margin-bottom: 10px;
+                }
+            </style>
+            <div class="custom-header">Comparison of Tariffs between Phase 1 and Phase 2</div>
+            """, unsafe_allow_html=True
+        )
+        tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:6].set_index('Unnamed: 4')
+        fig = px.bar(
+            tariffs,
+            barmode='group',
+            title="Tariff Comparison (Phase 1 vs Phase 2)",
+            color_discrete_sequence=["#001f3f", "#FFDD44"],
+            labels={"value": "Tariff", "Unnamed: 4": "Metric"}
+        )
+        fig.update_layout(
+            title_font=dict(size=18, color='darkblue'),
+            xaxis=dict(title="Metric"),
+            yaxis=dict(title="Tariff Value"),
+            legend=dict(orientation="h", y=1.1)
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-        # # Equity IRR Pie Chart
-        # st.markdown("""
-        #     <style>
-        #         .custom-subheader {
-        #             font-size: 24px;
-        #             font-weight: 700;
-        #             color: #FFFFFF; /* White text for contrast */
-        #             background-color: #FFDD44; /* Yellow background matching the dashboard theme */
-        #             padding: 10px 15px;
-        #             border-radius: 8px;
-        #             text-align: left;
-        #             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
-        #             margin-bottom: 10px;
-        #         }
-        #     </style>
-        #     <div class="custom-subheader">Equity IRR Distribution</div>
-        #     """, unsafe_allow_html=True
-        # )
+        # Equity IRR Pie Chart
+        st.markdown("""
+            <style>
+                .custom-subheader {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF; /* White text for contrast */
+                    background-color: #FFDD44; /* Yellow background matching the dashboard theme */
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    text-align: left;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+                    margin-bottom: 10px;
+                }
+            </style>
+            <div class="custom-subheader">Equity IRR Distribution</div>
+            """, unsafe_allow_html=True
+        )
 
-        # # Prepare data for the pie chart
-        # equity_irr_data = {
-        #     "Phase": ["Phase 1", "Phase 2"],
-        #     "Equity IRR (%)": [equity_irr_phase_1_percentage, equity_irr_phase_2_percentage]
-        # }
+        # Prepare data for the pie chart
+        equity_irr_data = {
+            "Phase": ["Phase 1", "Phase 2"],
+            "Equity IRR (%)": [equity_irr_phase_1_percentage, equity_irr_phase_2_percentage]
+        }
 
-        # # Create the pie chart
-        # fig_pie = px.pie(
-        #     equity_irr_data,
-        #     names="Phase",
-        #     values="Equity IRR (%)",
-        #     title="Equity IRR Distribution between Phase 1 and Phase 2",
-        #     color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+        # Create the pie chart
+        fig_pie = px.pie(
+            equity_irr_data,
+            names="Phase",
+            values="Equity IRR (%)",
+            title="Equity IRR Distribution between Phase 1 and Phase 2",
+            color_discrete_sequence=["#1f77b4", "#ff7f0e"]
 
-        # )
+        )
 
-        # # Customize the layout for better aesthetics
-        # fig_pie.update_traces(textposition="inside", textinfo="percent+label")
-        # fig_pie.update_layout(
-        #     title_font=dict(size=18, color='darkblue'),
-        #     showlegend=True,
-        #     legend=dict(orientation="h", y=-0.1, x=0.5, xanchor="center")
-        # )
+        # Customize the layout for better aesthetics
+        fig_pie.update_traces(textposition="inside", textinfo="percent+label")
+        fig_pie.update_layout(
+            title_font=dict(size=18, color='darkblue'),
+            showlegend=True,
+            legend=dict(orientation="h", y=-0.1, x=0.5, xanchor="center")
+        )
 
-        # # Display the pie chart in Streamlit
-        # st.plotly_chart(fig_pie, use_container_width=True)
+        # Display the pie chart in Streamlit
+        st.plotly_chart(fig_pie, use_container_width=True)
 
 
-        # st.markdown("""
-        #     <style>
-        #         .custom-subheader {
-        #             font-size: 24px;
-        #             font-weight: 700;
-        #             color: #FFFFFF; /* White text for contrast */
-        #             background-color: #001f3f; /* Yellow background matching the dashboard theme */
-        #             padding: 10px 15px;
-        #             border-radius: 8px;
-        #             text-align: left;
-        #             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
-        #             margin-bottom: 10px;
-        #         }
-        #     </style>
-        #     <div class="custom-subheader">Total Unitary Charge Comparison</div>
-        #     """, unsafe_allow_html=True
-        # )
+        st.markdown("""
+            <style>
+                .custom-subheader {
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: #FFFFFF; /* White text for contrast */
+                    background-color: #001f3f; /* Yellow background matching the dashboard theme */
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    text-align: left;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
+                    margin-bottom: 10px;
+                }
+            </style>
+            <div class="custom-subheader">Total Unitary Charge Comparison</div>
+            """, unsafe_allow_html=True
+        )
 
-        # # Prepare data for the bar chart
-        # unitary_charge_data = {
-        #     "Phase": ["Phase 1", "Phase 2"],
-        #     "Total Unitary Charge (LE/m³)": [total_unitary_charge_phase_1, total_unitary_charge_phase_2]
-        # }
+        # Prepare data for the bar chart
+        unitary_charge_data = {
+            "Phase": ["Phase 1", "Phase 2"],
+            "Total Unitary Charge (LE/m³)": [total_unitary_charge_phase_1, total_unitary_charge_phase_2]
+        }
 
-        # # Create the bar chart
-        # fig_bar = px.bar(
-        #     unitary_charge_data,
-        #     x="Phase",
-        #     y="Total Unitary Charge (LE/m³)",
-        #     title="Total Unitary Charge for Phase 1 and Phase 2",
-        #     color="Phase",
-        #     color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},  # Navy and yellow
-        # )
+        # Create the bar chart
+        fig_bar = px.bar(
+            unitary_charge_data,
+            x="Phase",
+            y="Total Unitary Charge (LE/m³)",
+            title="Total Unitary Charge for Phase 1 and Phase 2",
+            color="Phase",
+            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},  # Navy and yellow
+        )
 
-        # # Customize layout and aesthetics
-        # fig_bar.update_layout(
-        #     title_font=dict(size=18, color='darkblue'),
-        #     xaxis=dict(title="Phase"),
-        #     yaxis=dict(title="Total Unitary Charge (LE/m³)"),
-        #     plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
-        #     paper_bgcolor="rgba(0,0,0,0)", # Transparent background for entire chart area
-        #     showlegend=False,               # Hides legend since labels are clear
-        # )
+        # Customize layout and aesthetics
+        fig_bar.update_layout(
+            title_font=dict(size=18, color='darkblue'),
+            xaxis=dict(title="Phase"),
+            yaxis=dict(title="Total Unitary Charge (LE/m³)"),
+            plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+            paper_bgcolor="rgba(0,0,0,0)", # Transparent background for entire chart area
+            showlegend=False,               # Hides legend since labels are clear
+        )
 
-        # # Add a shadow effect to the bars
-        # fig_bar.update_traces(
-        #     marker=dict(line=dict(color="#333333", width=1.5))  # Adds an outline to each bar
-        # )
+        # Add a shadow effect to the bars
+        fig_bar.update_traces(
+            marker=dict(line=dict(color="#333333", width=1.5))  # Adds an outline to each bar
+        )
 
-        # # Display the bar chart in Streamlit
-        # st.plotly_chart(fig_bar, use_container_width=True)
+        # Display the bar chart in Streamlit
+        st.plotly_chart(fig_bar, use_container_width=True)
 
-        # # Conclusion or Additional Notes Section
-        # st.markdown("### Additional Insights")
-        # st.text("Provide additional analysis, insights, or explanations here to aid user interpretation.")
-
-        # st.write(df_cleaned)
+        # Conclusion or Additional Notes Section
+        st.markdown("### Additional Insights")
+        st.text("Provide additional analysis, insights, or explanations here to aid user interpretation.")
 
     elif options == "User Details":
         col1,col2 = st.columns([3,5])

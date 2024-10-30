@@ -643,7 +643,7 @@ elif st.session_state.page == 'phase':
         st.session_state.cepsp1 = custom_number_input("Capital Expenditure - Pre sensitivity(in LE'000s) - Phase 1", 'cepsp1key', "Enter")
         st.session_state.ces1 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 1", 'cesp1key', "Enter")
         if st.session_state.cepsp1 != 0 and st.session_state.ces1 != 0:
-                post_sensitivity_value = st.session_state.cepsp1 * st.session_state.ces1
+                post_sensitivity_value = st.session_state.cepsp1 * (st.session_state.ces1 / 100)
                 st.write("Calculated Capital Expenditure - Post Sensitivity (in LE'000s):", post_sensitivity_value)
                 st.session_state.field11 = post_sensitivity_value
         st.session_state.field12 = custom_percentage_input("Debt (%) - Phase 1", '12', "Enter")
@@ -835,55 +835,55 @@ elif st.session_state.page == 'phase':
         # st.write(df_cleaned
 
 
-        file_extension = Path(file_path).suffix.lower()[1:]
-        if file_extension in ['xlsx', 'xls']:
+        # file_extension = Path(file_path).suffix.lower()[1:]
+        # if file_extension in ['xlsx', 'xls']:
 
-            with open(file_path, 'rb') as file:
-                content = file.read(4)
-                print(content)
+        #     with open(file_path, 'rb') as file:
+        #         content = file.read(4)
+        #         print(content)
 
-            workbook = load_workbook(file_path)
-            sheet = workbook['Inp_C']
-
-
-        if 'Phase_1' in df_cleaned.columns:
-            sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
-            sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
-            sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
-            sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
-            sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
-            sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
-            sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
-            sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1']) 
-            sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
-            sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
-            sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
-            sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
-            sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1']) 
-            sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
-            sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
-            sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
-            sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
-            sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
-            sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
-            sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
-            sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
-            sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
-            sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
-            sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
-            sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
-            sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
-            sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
-            sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
-            sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
-            sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
-            sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
-            sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
-            sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
-            sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+        #     workbook = load_workbook(file_path)
+        #     sheet = workbook['Inp_C']
 
 
-            workbook.save(file_path)
+        # if 'Phase_1' in df_cleaned.columns:
+        #     sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
+        #     sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
+        #     sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
+        #     sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
+        #     sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
+        #     sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
+        #     sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
+        #     sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1']) 
+        #     sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
+        #     sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
+        #     sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
+        #     sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
+        #     sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1']) 
+        #     sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
+        #     sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
+        #     sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
+        #     sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
+        #     sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
+        #     sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
+        #     sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
+        #     sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
+        #     sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
+        #     sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
+        #     sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
+        #     sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
+        #     sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
+        #     sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
+        #     sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
+        #     sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
+        #     sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
+        #     sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
+        #     sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
+        #     sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
+        #     sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+
+
+        #     workbook.save(file_path)
 
 
 
@@ -970,7 +970,7 @@ elif st.session_state.page == 'phase2':
     st.session_state.cepsp2 = custom_number_input("Capital Expenditure - Pre sensitivity (in LE'000s) - Phase 2", 'cepsp1key', "Enter")
     st.session_state.ces2 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 2", 'cesp1key', "Enter")
     if st.session_state.cepsp2 != 0 and st.session_state.ces2 != 0:
-            post_sensitivity_value = st.session_state.cepsp2 * st.session_state.ces2
+            post_sensitivity_value = st.session_state.cepsp2 * (st.session_state.ces2 / 100)
             st.write("Calculated Capital Expenditure - Post Sensitivity (in LE'000s):", post_sensitivity_value)
             st.session_state.field69 = post_sensitivity_value
     st.session_state.field40 = custom_percentage_input("Debt (%) - Phase 2", '40', "Enter",0.0) 
@@ -1161,48 +1161,48 @@ elif st.session_state.page == 'phase2':
 
 
 
-    file_extension = Path(file_path).suffix.lower()[1:]
-    if file_extension in ['xlsx', 'xls']:
-        workbook = load_workbook(file_path)
-        sheet = workbook['Inp_C']
+    # file_extension = Path(file_path).suffix.lower()[1:]
+    # if file_extension in ['xlsx', 'xls']:
+    #     workbook = load_workbook(file_path)
+    #     sheet = workbook['Inp_C']
 
-    if 'Phase_2' in df_cleaned.columns:
-        sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
-        sheet.cell(row=14, column=11, value=df_cleaned.at[9, 'Phase_2'])
-        sheet.cell(row=15, column=11, value=df_cleaned.at[10, 'Phase_2']) 
-        sheet.cell(row=16, column=11, value=df_cleaned.at[11, 'Phase_2']) 
-        sheet.cell(row=19, column=11, value=df_cleaned.at[14, 'Phase_2']) 
-        sheet.cell(row=20, column=11, value=df_cleaned.at[15, 'Phase_2']) 
-        sheet.cell(row=21, column=11, value=df_cleaned.at[16, 'Phase_2']) 
-        sheet.cell(row=24, column=11, value=df_cleaned.at[19, 'Phase_2']) 
-        sheet.cell(row=25, column=11, value=df_cleaned.at[20, 'Phase_2']) 
-        sheet.cell(row=26, column=11, value=df_cleaned.at[21, 'Phase_2']) 
-        sheet.cell(row=30, column=11, value=df_cleaned.at[25, 'Phase_2']) 
-        sheet.cell(row=31, column=11, value=df_cleaned.at[26, 'Phase_2']  / 100) 
-        sheet.cell(row=32, column=11, value=df_cleaned.at[27, 'Phase_2']) 
-        sheet.cell(row=37, column=11, value=df_cleaned.at[32, 'Phase_2'] / 100) 
-        sheet.cell(row=38, column=11, value=df_cleaned.at[33, 'Phase_2'] / 100) 
-        sheet.cell(row=41, column=11, value=df_cleaned.at[36, 'Phase_2'] / 100) 
-        sheet.cell(row=44, column=11, value=df_cleaned.at[39, 'Phase_2'] / 100) 
-        sheet.cell(row=47, column=11, value=df_cleaned.at[42, 'Phase_2'] / 100) 
-        sheet.cell(row=48, column=11, value=df_cleaned.at[43, 'Phase_2'] / 100) 
-        sheet.cell(row=62, column=11, value=df_cleaned.at[57, 'Phase_2']) 
-        sheet.cell(row=63, column=11, value=df_cleaned.at[58, 'Phase_2']) 
-        sheet.cell(row=64, column=11, value=df_cleaned.at[59, 'Phase_2']) 
-        sheet.cell(row=65, column=11, value=df_cleaned.at[60, 'Phase_2']) 
-        sheet.cell(row=68, column=11, value=df_cleaned.at[63, 'Phase_2']) 
-        sheet.cell(row=69, column=11, value=df_cleaned.at[64, 'Phase_2']) 
-        sheet.cell(row=70, column=11, value=df_cleaned.at[65, 'Phase_2']) 
-        sheet.cell(row=71, column=11, value=df_cleaned.at[66, 'Phase_2']) 
-        sheet.cell(row=72, column=11, value=df_cleaned.at[67, 'Phase_2']) 
-        sheet.cell(row=78, column=11, value=df_cleaned.at[73, 'Phase_2'] / 100)
-        sheet.cell(row=79, column=11, value=df_cleaned.at[74, 'Phase_2'] / 100)
-        sheet.cell(row=80, column=11, value=df_cleaned.at[75, 'Phase_2'] / 100)
-        sheet.cell(row=84, column=11, value=df_cleaned.at[79, 'Phase_2']  / 100)
-        sheet.cell(row=86, column=11, value=df_cleaned.at[81, 'Phase_2']  / 100)
+    # if 'Phase_2' in df_cleaned.columns:
+    #     sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
+    #     sheet.cell(row=14, column=11, value=df_cleaned.at[9, 'Phase_2'])
+    #     sheet.cell(row=15, column=11, value=df_cleaned.at[10, 'Phase_2']) 
+    #     sheet.cell(row=16, column=11, value=df_cleaned.at[11, 'Phase_2']) 
+    #     sheet.cell(row=19, column=11, value=df_cleaned.at[14, 'Phase_2']) 
+    #     sheet.cell(row=20, column=11, value=df_cleaned.at[15, 'Phase_2']) 
+    #     sheet.cell(row=21, column=11, value=df_cleaned.at[16, 'Phase_2']) 
+    #     sheet.cell(row=24, column=11, value=df_cleaned.at[19, 'Phase_2']) 
+    #     sheet.cell(row=25, column=11, value=df_cleaned.at[20, 'Phase_2']) 
+    #     sheet.cell(row=26, column=11, value=df_cleaned.at[21, 'Phase_2']) 
+    #     sheet.cell(row=30, column=11, value=df_cleaned.at[25, 'Phase_2']) 
+    #     sheet.cell(row=31, column=11, value=df_cleaned.at[26, 'Phase_2']  / 100) 
+    #     sheet.cell(row=32, column=11, value=df_cleaned.at[27, 'Phase_2']) 
+    #     sheet.cell(row=37, column=11, value=df_cleaned.at[32, 'Phase_2'] / 100) 
+    #     sheet.cell(row=38, column=11, value=df_cleaned.at[33, 'Phase_2'] / 100) 
+    #     sheet.cell(row=41, column=11, value=df_cleaned.at[36, 'Phase_2'] / 100) 
+    #     sheet.cell(row=44, column=11, value=df_cleaned.at[39, 'Phase_2'] / 100) 
+    #     sheet.cell(row=47, column=11, value=df_cleaned.at[42, 'Phase_2'] / 100) 
+    #     sheet.cell(row=48, column=11, value=df_cleaned.at[43, 'Phase_2'] / 100) 
+    #     sheet.cell(row=62, column=11, value=df_cleaned.at[57, 'Phase_2']) 
+    #     sheet.cell(row=63, column=11, value=df_cleaned.at[58, 'Phase_2']) 
+    #     sheet.cell(row=64, column=11, value=df_cleaned.at[59, 'Phase_2']) 
+    #     sheet.cell(row=65, column=11, value=df_cleaned.at[60, 'Phase_2']) 
+    #     sheet.cell(row=68, column=11, value=df_cleaned.at[63, 'Phase_2']) 
+    #     sheet.cell(row=69, column=11, value=df_cleaned.at[64, 'Phase_2']) 
+    #     sheet.cell(row=70, column=11, value=df_cleaned.at[65, 'Phase_2']) 
+    #     sheet.cell(row=71, column=11, value=df_cleaned.at[66, 'Phase_2']) 
+    #     sheet.cell(row=72, column=11, value=df_cleaned.at[67, 'Phase_2']) 
+    #     sheet.cell(row=78, column=11, value=df_cleaned.at[73, 'Phase_2'] / 100)
+    #     sheet.cell(row=79, column=11, value=df_cleaned.at[74, 'Phase_2'] / 100)
+    #     sheet.cell(row=80, column=11, value=df_cleaned.at[75, 'Phase_2'] / 100)
+    #     sheet.cell(row=84, column=11, value=df_cleaned.at[79, 'Phase_2']  / 100)
+    #     sheet.cell(row=86, column=11, value=df_cleaned.at[81, 'Phase_2']  / 100)
 
 
-        workbook.save(file_path)
+    #     workbook.save(file_path)
 
 
 elif st.session_state.page == 'risk-management':
@@ -1245,16 +1245,22 @@ elif st.session_state.page == 'risk-management':
     #         return pd.read_csv(file_path)
     #     else:
     #         raise Exception("File not supported")
-
+ 
     
         
     df = load_financial_model(file_path,sheet_name='Sheet1',header=4)
-    
+
+
+
     df = df.iloc[:, 1:]
+
+    # st.write(df)
 
     df = df.drop([37,38])
    
     df = df.dropna(axis=1, how='any')
+
+    
 
     # Extract risk list
     risk_list = df['Risk'].dropna().tolist()
@@ -1334,37 +1340,37 @@ elif st.session_state.page == 'risk-management':
                             pass
                     else:
                         df.loc[df['Risk'] == selected_risk, column] = new_value
-    if st.button("Save Changes"):
-        if "Select a risk" in st.session_state.selected_risks:
-            st.error("Please select all 15 risks before saving changes.")
-        else:
-            try:
-                file_extension = Path(file_path).suffix.lower()[1:]
-                if file_extension in ['xlsx', 'xls']:
-                    book = load_workbook(file_path)
-                    sheet = book['Sheet1']
+    # if st.button("Save Changes"):
+    #     if "Select a risk" in st.session_state.selected_risks:
+    #         st.error("Please select all 15 risks before saving changes.")
+    #     else:
+    #         try:
+    #             file_extension = Path(file_path).suffix.lower()[1:]
+    #             if file_extension in ['xlsx', 'xls']:
+    #                 book = load_workbook(file_path)
+    #                 sheet = book['Sheet1']
 
-                # Iterate through all selected risks and update corresponding rows in the Excel sheet
-                for i, selected_risk in enumerate(st.session_state.selected_risks):
-                    # Find the row corresponding to the selected risk
-                    risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
+    #             # Iterate through all selected risks and update corresponding rows in the Excel sheet
+    #             for i, selected_risk in enumerate(st.session_state.selected_risks):
+    #                 # Find the row corresponding to the selected risk
+    #                 risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
 
-                    # Update only the changed fields in the sheet
-                    for column in editable_fields:
-                        col_idx = df.columns.get_loc(column) + 2  
+    #                 # Update only the changed fields in the sheet
+    #                 for column in editable_fields:
+    #                     col_idx = df.columns.get_loc(column) + 2  
 
-                        if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
-                                    "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
-                            sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
-                        elif column == "mitigation cost":
-                            sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-                        else:
-                            sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-                book.save(file_path)
-                st.success("All changes have been saved successfully!")
+    #                     if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+    #                                 "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
+    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
+    #                     elif column == "mitigation cost":
+    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+    #                     else:
+    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+    #             book.save(file_path)
+    #             st.success("All changes have been saved successfully!")
 
-            except Exception as e:
-                st.error(f"Error saving changes: {e}")
+    #         except Exception as e:
+    #             st.error(f"Error saving changes: {e}")
 
     if st.session_state.page == 'risk-management':
         st.button("Back" , on_click = continue_to_phase2)
@@ -1413,6 +1419,7 @@ elif st.session_state.page == 'dashboard':
                     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); 
                     margin-bottom: 20px;
                     letter-spacing: 1px; 
+
                 }
                 
             </style>
@@ -1460,9 +1467,12 @@ elif st.session_state.page == 'dashboard':
                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                     color: white;
                     margin-bottom: 15px;
+                    display:flex;
+                    flex-direction:column;
+                    align-items:center
                 ">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 700;">{label}</h4>
-                    <p style="font-size: 16px; margin: 5px 0 0 0;">{value}</p>
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 800;">{label}</h4>
+                    <p style="font-size: 16px;font-weight:900; margin: 5px 0 0 0;">{value}</p>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -1494,7 +1504,8 @@ elif st.session_state.page == 'dashboard':
             <div class="custom-header">Comparison of Tariffs between Phase 1 and Phase 2</div>
             """, unsafe_allow_html=True
         )
-        tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:6].set_index('Unnamed: 4')
+        tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:5].set_index('Unnamed: 4')
+
         fig = px.bar(
             tariffs,
             barmode='group',
@@ -1508,6 +1519,7 @@ elif st.session_state.page == 'dashboard':
             yaxis=dict(title="Tariff Value"),
             legend=dict(orientation="h", y=1.1)
         )
+
         st.plotly_chart(fig, use_container_width=True)
 
         # Equity IRR Pie Chart
@@ -1535,26 +1547,53 @@ elif st.session_state.page == 'dashboard':
             "Equity IRR (%)": [equity_irr_phase_1_percentage, equity_irr_phase_2_percentage]
         }
 
-        # Create the pie chart
-        fig_pie = px.pie(
+        # # Create the pie chart
+        # fig_pie = px.pie(
+        #     equity_irr_data,
+        #     names="Phase",
+        #     values="Equity IRR (%)",
+        #     title="Equity IRR Distribution between Phase 1 and Phase 2",
+        #     color_discrete_sequence=["#1f77b4", "#ff7f0e"]
+
+        # )
+
+        # # Customize the layout for better aesthetics
+        # fig_pie.update_traces(textposition="inside", textinfo="percent+label")
+        # fig_pie.update_layout(
+        #     title_font=dict(size=18, color='darkblue'),
+        #     showlegend=True,
+        #     legend=dict(orientation="h", y=-0.1, x=0.5, xanchor="center")
+        # )
+
+        # # Display the pie chart in Streamlit
+        # st.plotly_chart(fig_pie, use_container_width=True)
+
+        fig_bar = px.bar(
             equity_irr_data,
-            names="Phase",
-            values="Equity IRR (%)",
+            x="Phase",
+            y="Equity IRR (%)",
             title="Equity IRR Distribution between Phase 1 and Phase 2",
-            color_discrete_sequence=["#1f77b4", "#ff7f0e"]
-
+            color="Phase",
+            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},  # Navy and yellow
         )
 
-        # Customize the layout for better aesthetics
-        fig_pie.update_traces(textposition="inside", textinfo="percent+label")
-        fig_pie.update_layout(
+        # Customize layout and aesthetics
+        fig_bar.update_layout(
             title_font=dict(size=18, color='darkblue'),
-            showlegend=True,
-            legend=dict(orientation="h", y=-0.1, x=0.5, xanchor="center")
+            xaxis=dict(title="Phase"),
+            yaxis=dict(title="Equity IRR (%)"),
+            plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
+            paper_bgcolor="rgba(0,0,0,0)", # Transparent background for entire chart area
+            showlegend=False,               # Hides legend since labels are clear
         )
 
-        # Display the pie chart in Streamlit
-        st.plotly_chart(fig_pie, use_container_width=True)
+        # Add a shadow effect to the bars
+        fig_bar.update_traces(
+            marker=dict(line=dict(color="#333333", width=1.5))  # Adds an outline to each bar
+        )
+
+        # Display the bar chart in Streamlit
+        st.plotly_chart(fig_bar, use_container_width=True)
 
 
         st.markdown("""

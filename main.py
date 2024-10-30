@@ -1402,7 +1402,6 @@ elif st.session_state.page == 'dashboard':
 
 
         # Total risk values:
-
         df_risks = load_financial_model(file_path,sheet_name='Sheet1',header=4)
 
         cell_value = df_risks.iloc[38, 14]
@@ -1411,8 +1410,6 @@ elif st.session_state.page == 'dashboard':
         rounded_value_risk_total = f'{cell_value:.2f}'
         rounded_value_risk_total_2 = f'{cell_value_2:.2f}'
 
-        st.write(rounded_value_risk_total)
-        st.write(rounded_value_risk_total_2)
 
         # st.write(df_risks)
 
@@ -1497,8 +1494,8 @@ elif st.session_state.page == 'dashboard':
         create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
         create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
         create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
-        create_metric_card(cols[4], "Risk Total - CRG(post mitigation)", f"{rounded_value_risk_total}", "#E74C3C")  # Red
-        create_metric_card(cols[5], "Risk Total - CRP(post mitigation)", f"{rounded_value_risk_total_2}", "#E74C3C")  # Red
+        create_metric_card(cols[4], "Risk Total - CRG(post mitigation)", f"{rounded_value_risk_total}", "#E67E22")  # Red
+        create_metric_card(cols[5], "Risk Total - CRP(post mitigation)", f"{rounded_value_risk_total_2}", "#D35400")  # Red
 
         st.divider()
 

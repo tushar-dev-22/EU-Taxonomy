@@ -1480,7 +1480,7 @@ elif st.session_state.page == 'dashboard':
                     display:flex;
                     flex-direction:column;
                     align-items:center;
-                    min-height:125px
+                    min-height:144px
                 ">
                     <h4 style="margin: 0; font-size: 15px; font-weight: 800;text-align:center">{label}</h4>
                     <p style="font-size: 16px;font-weight:900; margin: 5px 0 0 0;">{value}</p>
@@ -1494,8 +1494,8 @@ elif st.session_state.page == 'dashboard':
         create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
         create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
         create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
-        create_metric_card(cols[4], "Risk Total - CRG(post mitigation)", f"{rounded_value_risk_total}", "#E67E22")  # Red
-        create_metric_card(cols[5], "Risk Total - CRP(post mitigation)", f"{rounded_value_risk_total_2}", "#D35400")  # Red
+        create_metric_card(cols[4], "Cost of risk on the Government (post mitigation)", f"{rounded_value_risk_total}", "#E67E22")  
+        create_metric_card(cols[5], "Cost of risk on the Private (post mitigation)", f"{rounded_value_risk_total_2}", "#D35400") 
 
         st.divider()
 
@@ -1584,11 +1584,13 @@ elif st.session_state.page == 'dashboard':
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             showlegend=False,
+            margin=dict(l=40, r=40, t=40, b=40)
         )
 
         fig_bar.update_traces(
             texttemplate='%{text:.2f}',  # Format text label as needed
-            textposition="outside"       # Position label on top of the bars
+            textposition="outside" ,      # Position label on top of the bars
+            textfont=dict(size=10)
         )
 
         st.plotly_chart(fig_bar, use_container_width=True)
@@ -1634,11 +1636,13 @@ elif st.session_state.page == 'dashboard':
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
             showlegend=False,
+            margin=dict(l=40, r=40, t=40, b=40)
         )
 
         fig_bar.update_traces(
             texttemplate='%{text:.2f}',  # Format text label as needed
-            textposition="outside"       # Position label on top of the bars
+            textposition="outside" ,      # Position label on top of the bars
+            textfont=dict(size=10)
         )
 
         st.plotly_chart(fig_bar, use_container_width=True)

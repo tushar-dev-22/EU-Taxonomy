@@ -1278,7 +1278,7 @@ elif st.session_state.page == 'risk-management':
         "Probability of Occurrence (%)", 
         "Allocation to Government (%)", 
         "Allocation to Private Sector (%)",
-        "mitigation cost"
+        "Mitigation cost"
     ]
 
     # Function to ensure a risk can only be selected once
@@ -1307,7 +1307,7 @@ elif st.session_state.page == 'risk-management':
             with st.expander(f"Details for {selected_risk}"):
                 for column in editable_fields:
                     # Check if the column is one of the exceptions
-                    if column in ["mitigation cost"]:
+                    if column in ["Mitigation cost"]:
                         current_value_str = "0.0"
                     else:
                         current_value = selected_risk_data[column] if pd.notna(selected_risk_data[column]) else ""  # Set default value to 0 for other fields
@@ -1333,7 +1333,7 @@ elif st.session_state.page == 'risk-management':
                             df.loc[df['Risk'] == selected_risk, column] = float(new_value) / 100
                         except ValueError:
                             pass
-                    elif column == "mitigation cost":
+                    elif column == "Mitigation cost":
                         try:
                             df.loc[df['Risk'] == selected_risk, column] = float(new_value)
                         except ValueError:
@@ -1377,18 +1377,13 @@ elif st.session_state.page == 'risk-management':
     st.button("Dashboard",on_click = continue_to_dashboard)
 
 elif st.session_state.page == 'dashboard':
-    # st.markdown(
-    #     f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
-    #     '<strong>WELCOME TO THE EU TAXONOMY DASHBOARD</strong>'
-    #     '</div>', unsafe_allow_html=True)
 
-    
     def load_lottie_url(url: str):
         response = requests.get(url)
         if response.status_code == 200:
             return response.json()
         return None
-    lottie_url1 = "https://assets10.lottiefiles.com/packages/lf20_jcikwtux.json"  # Example URL
+    lottie_url1 = "https://assets10.lottiefiles.com/packages/lf20_jcikwtux.json"  
     lottie_url2 = "https://lottie.host/da208e68-3a3a-48a9-b73f-17f8925cde2a/zJ0MoRmhHJ.json"
     lottie_animation1 = load_lottie_url(lottie_url1)
     lottie_animation2 = load_lottie_url(lottie_url2)
@@ -1396,6 +1391,7 @@ elif st.session_state.page == 'dashboard':
     options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
     if  options == "Data Overview":
         df = load_financial_model(file_path,sheet_name='Output',header=7)
+
         fixed_indices = [0, 1, 2,3,9]
 
         range_indices = list(range(11, 63))
@@ -1403,6 +1399,23 @@ elif st.session_state.page == 'dashboard':
         indcies_to_drop = range_indices + fixed_indices
 
         df_cleaned = df.drop(fixed_indices)
+
+
+        # Total risk values:
+
+        df_risks = load_financial_model(file_path,sheet_name='Sheet1',header=4)
+
+        cell_value = df_risks.iloc[38, 14]
+        cell_value_2 = df_risks.iloc[38, 15]
+
+        rounded_value_risk_total = f'{cell_value:.2f}'
+        rounded_value_risk_total_2 = f'{cell_value_2:.2f}'
+
+        st.write(rounded_value_risk_total)
+        st.write(rounded_value_risk_total_2)
+
+        # st.write(df_risks)
+
 
         # Dashboard title
         # st.set_page_config(page_title="Financial Analytics Dashboard", layout="wide")
@@ -1453,7 +1466,7 @@ elif st.session_state.page == 'dashboard':
         )
 
         # Create a container for the cards to ensure they are displayed inline
-        cols = st.columns(4)
+        cols = st.columns(6)
 
         # Define a function to create a styled metric card with different colors
         def create_metric_card(col, label, value, color):
@@ -1469,9 +1482,10 @@ elif st.session_state.page == 'dashboard':
                     margin-bottom: 15px;
                     display:flex;
                     flex-direction:column;
-                    align-items:center
+                    align-items:center;
+                    min-height:125px
                 ">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 800;">{label}</h4>
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 800;text-align:center">{label}</h4>
                     <p style="font-size: 16px;font-weight:900; margin: 5px 0 0 0;">{value}</p>
                 </div>
                 """,
@@ -1483,6 +1497,8 @@ elif st.session_state.page == 'dashboard':
         create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
         create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
         create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
+        create_metric_card(cols[4], "Risk Total - CRG(post mitigation)", f"{rounded_value_risk_total}", "#E74C3C")  # Red
+        create_metric_card(cols[5], "Risk Total - CRP(post mitigation)", f"{rounded_value_risk_total_2}", "#E74C3C")  # Red
 
         st.divider()
 
@@ -1504,6 +1520,7 @@ elif st.session_state.page == 'dashboard':
             <div class="custom-header">Comparison of Tariffs between Phase 1 and Phase 2</div>
             """, unsafe_allow_html=True
         )
+
         tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:5].set_index('Unnamed: 4')
 
         fig = px.bar(
@@ -1511,8 +1528,10 @@ elif st.session_state.page == 'dashboard':
             barmode='group',
             title="Tariff Comparison (Phase 1 vs Phase 2)",
             color_discrete_sequence=["#001f3f", "#FFDD44"],
-            labels={"value": "Tariff", "Unnamed: 4": "Metric"}
+            labels={"value": "Tariff", "Unnamed: 4": "Metric"},
+            text_auto=True  # Display labels on bars
         )
+
         fig.update_layout(
             title_font=dict(size=18, color='darkblue'),
             xaxis=dict(title="Metric"),
@@ -1520,9 +1539,14 @@ elif st.session_state.page == 'dashboard':
             legend=dict(orientation="h", y=1.1)
         )
 
+        # Update traces to position labels on top of bars
+        fig.update_traces(
+            textposition="outside"
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
-        # Equity IRR Pie Chart
+        # Equity IRR Bar Chart with Labels on Top
         st.markdown("""
             <style>
                 .custom-subheader {
@@ -1541,32 +1565,10 @@ elif st.session_state.page == 'dashboard':
             """, unsafe_allow_html=True
         )
 
-        # Prepare data for the pie chart
         equity_irr_data = {
             "Phase": ["Phase 1", "Phase 2"],
             "Equity IRR (%)": [equity_irr_phase_1_percentage, equity_irr_phase_2_percentage]
         }
-
-        # # Create the pie chart
-        # fig_pie = px.pie(
-        #     equity_irr_data,
-        #     names="Phase",
-        #     values="Equity IRR (%)",
-        #     title="Equity IRR Distribution between Phase 1 and Phase 2",
-        #     color_discrete_sequence=["#1f77b4", "#ff7f0e"]
-
-        # )
-
-        # # Customize the layout for better aesthetics
-        # fig_pie.update_traces(textposition="inside", textinfo="percent+label")
-        # fig_pie.update_layout(
-        #     title_font=dict(size=18, color='darkblue'),
-        #     showlegend=True,
-        #     legend=dict(orientation="h", y=-0.1, x=0.5, xanchor="center")
-        # )
-
-        # # Display the pie chart in Streamlit
-        # st.plotly_chart(fig_pie, use_container_width=True)
 
         fig_bar = px.bar(
             equity_irr_data,
@@ -1574,28 +1576,27 @@ elif st.session_state.page == 'dashboard':
             y="Equity IRR (%)",
             title="Equity IRR Distribution between Phase 1 and Phase 2",
             color="Phase",
-            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},  # Navy and yellow
+            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},
+            text="Equity IRR (%)"  # Adding labels for the bars
         )
 
-        # Customize layout and aesthetics
         fig_bar.update_layout(
             title_font=dict(size=18, color='darkblue'),
             xaxis=dict(title="Phase"),
             yaxis=dict(title="Equity IRR (%)"),
-            plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
-            paper_bgcolor="rgba(0,0,0,0)", # Transparent background for entire chart area
-            showlegend=False,               # Hides legend since labels are clear
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            showlegend=False,
         )
 
-        # Add a shadow effect to the bars
         fig_bar.update_traces(
-            marker=dict(line=dict(color="#333333", width=1.5))  # Adds an outline to each bar
+            texttemplate='%{text:.2f}',  # Format text label as needed
+            textposition="outside"       # Position label on top of the bars
         )
 
-        # Display the bar chart in Streamlit
         st.plotly_chart(fig_bar, use_container_width=True)
 
-
+        # Total Unitary Charge Bar Chart with Labels on Top
         st.markdown("""
             <style>
                 .custom-subheader {
@@ -1614,38 +1615,35 @@ elif st.session_state.page == 'dashboard':
             """, unsafe_allow_html=True
         )
 
-        # Prepare data for the bar chart
         unitary_charge_data = {
             "Phase": ["Phase 1", "Phase 2"],
             "Total Unitary Charge (LE/m³)": [total_unitary_charge_phase_1, total_unitary_charge_phase_2]
         }
 
-        # Create the bar chart
         fig_bar = px.bar(
             unitary_charge_data,
             x="Phase",
             y="Total Unitary Charge (LE/m³)",
             title="Total Unitary Charge for Phase 1 and Phase 2",
             color="Phase",
-            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},  # Navy and yellow
+            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},
+            text="Total Unitary Charge (LE/m³)"  # Adding labels for the bars
         )
 
-        # Customize layout and aesthetics
         fig_bar.update_layout(
             title_font=dict(size=18, color='darkblue'),
             xaxis=dict(title="Phase"),
             yaxis=dict(title="Total Unitary Charge (LE/m³)"),
-            plot_bgcolor="rgba(0,0,0,0)",  # Transparent background
-            paper_bgcolor="rgba(0,0,0,0)", # Transparent background for entire chart area
-            showlegend=False,               # Hides legend since labels are clear
+            plot_bgcolor="rgba(0,0,0,0)",
+            paper_bgcolor="rgba(0,0,0,0)",
+            showlegend=False,
         )
 
-        # Add a shadow effect to the bars
         fig_bar.update_traces(
-            marker=dict(line=dict(color="#333333", width=1.5))  # Adds an outline to each bar
+            texttemplate='%{text:.2f}',  # Format text label as needed
+            textposition="outside"       # Position label on top of the bars
         )
 
-        # Display the bar chart in Streamlit
         st.plotly_chart(fig_bar, use_container_width=True)
 
         # Conclusion or Additional Notes Section

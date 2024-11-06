@@ -12,6 +12,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from datetime import timedelta
 import os
+import io
 # Page configuration
 st.set_page_config(
     page_title="EU Taxonomy",
@@ -33,7 +34,7 @@ def load_financial_model(file_path,sheet_name,header):
 
     elif file_extension == 'xls':
         st.write('its a xls file')
-        return pd.read_excel(file_path, sheet_name=sheet_name, header=header)
+        return pd.read_excel(file_path, sheet_name=sheet_name, header=header,engine='openpyxl')
     elif file_extension == 'csv':
         return pd.read_csv(file_path)
     else:
@@ -179,6 +180,8 @@ def continue_to_dashboard():
     # st.session_state.show_eligibility = False
 # Sidebar for input fields and logos
 if st.session_state.page == 'main':
+
+
     with st.sidebar:
         # Logos at the top of the sidebar
         col1, col2 = st.columns((1, 1))
@@ -547,6 +550,8 @@ if st.session_state.page == 'main':
 #Make changes for the next page here
 elif st.session_state.page == 'phase':
 
+        
+
     df = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
     df_cleaned = df[df.notna().any(axis=1)]
@@ -710,23 +715,23 @@ elif st.session_state.page == 'phase':
 
         # Updating data into financial model:
 
-        if 'oedp1' not in st.session_state:
-             st.session_state.oedp1 = None
+        # if 'oedp1' not in st.session_state:
+        #      st.session_state.oedp1 = None
 
-        if 'dredp1' not in st.session_state:
-             st.session_state.dredp1 = None
+        # if 'dredp1' not in st.session_state:
+        #      st.session_state.dredp1 = None
 
-        if 'cep1' not in st.session_state:
-             st.session_state.cep1 = None
+        # if 'cep1' not in st.session_state:
+        #      st.session_state.cep1 = None
 
-        if 'field29' not in st.session_state:
-             st.session_state.field29 = None
+        # if 'field29' not in st.session_state:
+        #      st.session_state.field29 = None
 
-        if 'osdp1' not in st.session_state:
-             st.session_state.osdp1 = None
+        # if 'osdp1' not in st.session_state:
+        #      st.session_state.osdp1 = None
 
-        if 'drsdp1' not in st.session_state:
-             st.session_state.drsdp1 = None
+        # if 'drsdp1' not in st.session_state:
+        #      st.session_state.drsdp1 = None
 
         if st.session_state.fcp1:
             # Store the new date input into the DataFrame
@@ -738,26 +743,26 @@ elif st.session_state.page == 'phase':
         if st.session_state.field8:
             df_cleaned.at[10, 'Phase_1'] = (st.session_state.field8)
 
-        if st.session_state.field9:
-            df_cleaned.at[11, 'Phase_1'] = st.session_state.field9
+        # if st.session_state.field9:
+        #     df_cleaned.at[11, 'Phase_1'] = st.session_state.field9
 
-        if getattr(st.session_state, 'osdp1', None):
-            df_cleaned.at[14, 'Phase_1'] = st.session_state.osdp1
+        # if getattr(st.session_state, 'osdp1', None):
+        #     df_cleaned.at[14, 'Phase_1'] = st.session_state.osdp1
 
         if st.session_state.field10:
             df_cleaned.at[15, 'Phase_1'] = st.session_state.field10
 
-        if getattr(st.session_state, 'oedp1', None):
-            df_cleaned.at[16, 'Phase_1'] = st.session_state.oedp1
+        # if getattr(st.session_state, 'oedp1', None):
+        #     df_cleaned.at[16, 'Phase_1'] = st.session_state.oedp1
 
-        if getattr(st.session_state, 'drsdp1', None):
-            df_cleaned.at[19, 'Phase_1'] = st.session_state.drsdp1
+        # if getattr(st.session_state, 'drsdp1', None):
+        #     df_cleaned.at[19, 'Phase_1'] = st.session_state.drsdp1
 
         if st.session_state.drtp1:
             df_cleaned.at[20, 'Phase_1'] = st.session_state.drtp1
 
-        if getattr(st.session_state, 'dredp1', None):
-            df_cleaned.at[21, 'Phase_1'] = st.session_state.dredp1
+        # if getattr(st.session_state, 'dredp1', None):
+        #     df_cleaned.at[21, 'Phase_1'] = st.session_state.dredp1
 
         if st.session_state.cepsp1:
             df_cleaned.at[25, 'Phase_1'] = st.session_state.cepsp1
@@ -765,14 +770,14 @@ elif st.session_state.page == 'phase':
         if st.session_state.ces1:
             df_cleaned.at[26, 'Phase_1'] = st.session_state.ces1
             
-        if st.session_state.field11:
-            df_cleaned.at[27, 'Phase_1'] = st.session_state.field11
+        # if st.session_state.field11:
+        #     df_cleaned.at[27, 'Phase_1'] = st.session_state.field11
 
         if st.session_state.field12:
             df_cleaned.at[32, 'Phase_1'] = st.session_state.field12
 
-        if getattr(st.session_state, 'cep1', None):
-            df_cleaned.at[33, 'Phase_1'] = st.session_state.cep1
+        # if getattr(st.session_state, 'cep1', None):
+        #     df_cleaned.at[33, 'Phase_1'] = st.session_state.cep1
 
         if st.session_state.upfp1:
             df_cleaned.at[36, 'Phase_1'] = st.session_state.upfp1
@@ -810,8 +815,8 @@ elif st.session_state.page == 'phase':
         if st.session_state.field28:
             df_cleaned.at[66, 'Phase_1'] = st.session_state.field28
 
-        if getattr(st.session_state, 'field29', None):
-            df_cleaned.at[67, 'Phase_1'] = st.session_state.field29
+        # if getattr(st.session_state, 'field29', None):
+        #     df_cleaned.at[67, 'Phase_1'] = st.session_state.field29
 
         if st.session_state.field34:
             df_cleaned.at[68, 'Phase_1'] = st.session_state.field34
@@ -822,8 +827,8 @@ elif st.session_state.page == 'phase':
         if st.session_state.field18:
             df_cleaned.at[74, 'Phase_1'] = st.session_state.field18
 
-        if st.session_state.field19:
-            df_cleaned.at[75, 'Phase_1'] = st.session_state.field19
+        # if st.session_state.field19:
+        #     df_cleaned.at[75, 'Phase_1'] = st.session_state.field19
 
         if st.session_state.ofwaccp1:
             df_cleaned.at[79, 'Phase_1'] = st.session_state.ofwaccp1
@@ -832,78 +837,86 @@ elif st.session_state.page == 'phase':
             df_cleaned.at[81, 'Phase_1'] = st.session_state.drcitrp1
 
 
-        # st.write(df_cleaned
+        # st.write(df_cleaned,'----------------updating')
 
 
-        # file_extension = Path(file_path).suffix.lower()[1:]
-        # if file_extension in ['xlsx', 'xls']:
-
-        #     with open(file_path, 'rb') as file:
-        #         content = file.read(4)
-        #         print(content)
-
-        #     workbook = load_workbook(file_path)
-        #     sheet = workbook['Inp_C']
+        file_extension = Path(file_path).suffix.lower()[1:]
+        if file_extension in ['xlsx', 'xls']:
+            with open(file_path, 'rb') as file:
+                content = file.read(4)
+                st.write(content)
+                workbook = load_workbook(file_path)
+                sheet = workbook['Inp_C']
 
 
-        # if 'Phase_1' in df_cleaned.columns:
-        #     sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
-        #     sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
-        #     sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
-        #     sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
-        #     sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
-        #     sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
-        #     sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
-        #     sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1']) 
-        #     sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
-        #     sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
-        #     sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
-        #     sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
-        #     sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1']) 
-        #     sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
-        #     sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
-        #     sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
-        #     sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
-        #     sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
-        #     sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
-        #     sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
-        #     sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
-        #     sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
-        #     sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
-        #     sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
-        #     sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
-        #     sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
-        #     sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
-        #     sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
-        #     sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
-        #     sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
-        #     sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
-        #     sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
-        #     sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
-        #     sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+        if 'Phase_1' in df_cleaned.columns:
+            sheet.cell(row=11, column=10, value=df_cleaned.at[6, 'Phase_1'])
+            sheet.cell(row=14, column=10, value=df_cleaned.at[9, 'Phase_1'])
+            sheet.cell(row=15, column=10, value=df_cleaned.at[10, 'Phase_1']) 
+            # sheet.cell(row=16, column=10, value=df_cleaned.at[11, 'Phase_1']) 
+            # sheet.cell(row=19, column=10, value=df_cleaned.at[14, 'Phase_1']) 
+            sheet.cell(row=20, column=10, value=df_cleaned.at[15, 'Phase_1']) 
+            # sheet.cell(row=21, column=10, value=df_cleaned.at[16, 'Phase_1']) 
+            # sheet.cell(row=24, column=10, value=df_cleaned.at[19, 'Phase_1'])  
+            sheet.cell(row=25, column=10, value=df_cleaned.at[20, 'Phase_1']) 
+            # sheet.cell(row=26, column=10, value=df_cleaned.at[21, 'Phase_1']) 
+            sheet.cell(row=30, column=10, value=df_cleaned.at[25, 'Phase_1']) 
+            sheet.cell(row=31, column=10, value=df_cleaned.at[26, 'Phase_1']  / 100) 
+            # sheet.cell(row=32, column=10, value=df_cleaned.at[27, 'Phase_1'])  
+            sheet.cell(row=37, column=10, value=df_cleaned.at[32, 'Phase_1'] / 100) 
+            # sheet.cell(row=38, column=10, value=df_cleaned.at[33, 'Phase_1'] / 100) 
+            sheet.cell(row=41, column=10, value=df_cleaned.at[36, 'Phase_1'] / 100) 
+            sheet.cell(row=44, column=10, value=df_cleaned.at[39, 'Phase_1'] / 100) 
+            sheet.cell(row=47, column=10, value=df_cleaned.at[42, 'Phase_1'] / 100) 
+            sheet.cell(row=48, column=10, value=df_cleaned.at[43, 'Phase_1'] / 100) 
+            sheet.cell(row=62, column=10, value=df_cleaned.at[57, 'Phase_1']) 
+            sheet.cell(row=63, column=10, value=df_cleaned.at[58, 'Phase_1']) 
+            sheet.cell(row=64, column=10, value=df_cleaned.at[59, 'Phase_1']) 
+            sheet.cell(row=65, column=10, value=df_cleaned.at[60, 'Phase_1']) 
+            sheet.cell(row=68, column=10, value=df_cleaned.at[63, 'Phase_1']) 
+            sheet.cell(row=69, column=10, value=df_cleaned.at[64, 'Phase_1']) 
+            sheet.cell(row=70, column=10, value=df_cleaned.at[65, 'Phase_1']) 
+            sheet.cell(row=71, column=10, value=df_cleaned.at[66, 'Phase_1']) 
+            # sheet.cell(row=72, column=10, value=df_cleaned.at[67, 'Phase_1']) 
+            sheet.cell(row=73, column=10, value=df_cleaned.at[68, 'Phase_1']) 
+            sheet.cell(row=78, column=10, value=df_cleaned.at[73, 'Phase_1'] / 100)
+            sheet.cell(row=79, column=10, value=df_cleaned.at[74, 'Phase_1'] / 100)
+            # sheet.cell(row=80, column=10, value=df_cleaned.at[75, 'Phase_1'] / 100)
+            sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
+            sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
+
+            workbook.save(file_path)
 
 
-        #     workbook.save(file_path)
+            st.session_state.df_cleaned_phase_1 = df_cleaned
 
+            # st.write(df_cleaned,"updated data frame")
 
+            # st.write(st.session_state.df_cleaned_phase_1)
 
-    
+ 
 elif st.session_state.page == 'phase2':
 
-    df = load_financial_model(file_path,sheet_name='Inp_C',header=3)
+    # df = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
 
-    df_cleaned = df[df.notna().any(axis=1)]
+    # df_cleaned = df[df.notna().any(axis=1)]
 
-    # more_df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83,85,86,87])
-    df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83])
+    # # more_df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83,85,86,87])
+    # df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83])
 
-    df_cleaned['Unit'] = df_cleaned['Unit'].fillna(0)
-    df_cleaned['Unnamed: 4'] = df_cleaned['Unnamed: 4'].fillna(0)
-    df_cleaned['Phase_1'] = df_cleaned['Phase_1'].fillna(0)
-    df_cleaned['Phase_2'] = df_cleaned['Phase_2'].fillna(0)
+    # df_cleaned['Unit'] = df_cleaned['Unit'].fillna(0)
+    # df_cleaned['Unnamed: 4'] = df_cleaned['Unnamed: 4'].fillna(0)
+    # df_cleaned['Phase_1'] = df_cleaned['Phase_1'].fillna(0)
+    # df_cleaned['Phase_2'] = df_cleaned['Phase_2'].fillna(0)
 
-    df_cleaned = df_cleaned.dropna(axis=1, how='any')
+    # df_cleaned = df_cleaned.dropna(axis=1, how='any')
+
+
+    if 'df_cleaned_phase_1' in st.session_state:
+        df_cleaned_phase_2 = st.session_state.df_cleaned_phase_1
+    else:
+        st.write("Phase 1 data is not available. Please update Phase 1 first.")
 
     def custom_number_input(label, key, placeholder,value=0.0):
         return st.number_input(label, key=key, step=0.01,value=value,placeholder=placeholder)
@@ -1036,173 +1049,174 @@ elif st.session_state.page == 'phase2':
 
     # Update data in financial model of phase 2
 
-    if 'oedp2' not in st.session_state:
-            st.session_state.oedp1 = None
+    # if 'oedp2' not in st.session_state:
+    #         st.session_state.oedp1 = None
 
-    if 'dredp2' not in st.session_state:
-            st.session_state.dredp1 = None
+    # if 'dredp2' not in st.session_state:
+    #         st.session_state.dredp1 = None
 
-    if 'cep2' not in st.session_state:
-            st.session_state.cep1 = None
+    # if 'cep2' not in st.session_state:
+    #         st.session_state.cep1 = None
 
-    if 'field60' not in st.session_state:
-            st.session_state.field60 = None
+    # if 'field60' not in st.session_state:
+    #         st.session_state.field60 = None
 
-    if 'field69' not in st.session_state:
-            st.session_state.field69 = None
+    # if 'field69' not in st.session_state:
+    #         st.session_state.field69 = None
 
-    if 'drsdp2' not in st.session_state:
-        st.session_state.drsdp2 = None
+    # if 'drsdp2' not in st.session_state:
+    #     st.session_state.drsdp2 = None
 
     if st.session_state.fcp2:
-        df_cleaned.at[6, 'Phase_2'] = st.session_state.fcp2
+        df_cleaned_phase_2.at[6, 'Phase_2'] = st.session_state.fcp2
 
     if st.session_state.field35:
-        df_cleaned.at[9, 'Phase_2'] = st.session_state.field35
+        df_cleaned_phase_2.at[9, 'Phase_2'] = st.session_state.field35
 
     if st.session_state.field36:
-        df_cleaned.at[10, 'Phase_2'] = st.session_state.field36
+        df_cleaned_phase_2.at[10, 'Phase_2'] = st.session_state.field36
 
-    if st.session_state.field37:
-        df_cleaned.at[11, 'Phase_2'] = st.session_state.field37
+    # if st.session_state.field37:
+    #     df_cleaned_phase_2.at[11, 'Phase_2'] = st.session_state.field37
 
-    if st.session_state.osdp2:
-        df_cleaned.at[14, 'Phase_2'] = st.session_state.osdp2
+    # if st.session_state.osdp2:
+    #     df_cleaned_phase_2.at[14, 'Phase_2'] = st.session_state.osdp2
 
     if st.session_state.field38:
-        df_cleaned.at[15, 'Phase_2'] = st.session_state.field38
+        df_cleaned_phase_2.at[15, 'Phase_2'] = st.session_state.field38
 
-    if getattr(st.session_state, 'oedp2', None):
-        df_cleaned.at[16, 'Phase_2'] = st.session_state.oedp2
+    # if getattr(st.session_state, 'oedp2', None):
+    #     df_cleaned_phase_2.at[16, 'Phase_2'] = st.session_state.oedp2
 
-    if getattr(st.session_state, 'drsdp2', None):
-        df_cleaned.at[19, 'Phase_2'] = st.session_state.drsdp2
+    # if getattr(st.session_state, 'drsdp2', None):
+    #     df_cleaned_phase_2.at[19, 'Phase_2'] = st.session_state.drsdp2
 
     if st.session_state.drtp2:
-        df_cleaned.at[20, 'Phase_2'] = st.session_state.drtp2
+        df_cleaned_phase_2.at[20, 'Phase_2'] = st.session_state.drtp2
 
-    if getattr(st.session_state, 'dredp2', None):
-        df_cleaned.at[21, 'Phase_2'] = st.session_state.dredp2
+    # if getattr(st.session_state, 'dredp2', None):
+    #     df_cleaned_phase_2.at[21, 'Phase_2'] = st.session_state.dredp2
 
     if st.session_state.cepsp2:
-        df_cleaned.at[25, 'Phase_2'] = st.session_state.cepsp2
+        df_cleaned_phase_2.at[25, 'Phase_2'] = st.session_state.cepsp2
 
     if st.session_state.ces2:
-        df_cleaned.at[26, 'Phase_2'] = st.session_state.ces2
+        df_cleaned_phase_2.at[26, 'Phase_2'] = st.session_state.ces2
         
-    if getattr(st.session_state, 'field69', None):
-        df_cleaned.at[27, 'Phase_2'] = st.session_state.field69
+    # if getattr(st.session_state, 'field69', None):
+    #     df_cleaned_phase_2.at[27, 'Phase_2'] = st.session_state.field69
 
     if st.session_state.field40:
-        df_cleaned.at[32, 'Phase_2'] = st.session_state.field40
+        df_cleaned_phase_2.at[32, 'Phase_2'] = st.session_state.field40
 
-    if getattr(st.session_state, 'cep2', None):
-        df_cleaned.at[33, 'Phase_2'] = st.session_state.cep2
+    # if getattr(st.session_state, 'cep2', None):
+    #     df_cleaned_phase_2.at[33, 'Phase_2'] = st.session_state.cep2
 
     if st.session_state.upfp2:
-        df_cleaned.at[36, 'Phase_2'] = st.session_state.upfp2
+        df_cleaned_phase_2.at[36, 'Phase_2'] = st.session_state.upfp2
 
     if st.session_state.cfp2:
-        df_cleaned.at[39, 'Phase_2'] = st.session_state.cfp2
+        df_cleaned_phase_2.at[39, 'Phase_2'] = st.session_state.cfp2
 
     if st.session_state.field42:
-        df_cleaned.at[42, 'Phase_2'] = st.session_state.field42
+        df_cleaned_phase_2.at[42, 'Phase_2'] = st.session_state.field42
 
     if st.session_state.field43:
-        df_cleaned.at[43, 'Phase_2'] = st.session_state.field43
+        df_cleaned_phase_2.at[43, 'Phase_2'] = st.session_state.field43
 
-    if st.session_state.field44:
-        df_cleaned.at[44, 'Phase_2'] = st.session_state.field44
+    # if st.session_state.field44:
+    #     df_cleaned_phase_2.at[44, 'Phase_2'] = st.session_state.field44
 
     if st.session_state.cgp2:
-        df_cleaned.at[57, 'Phase_2'] = st.session_state.cgp2
+        df_cleaned_phase_2.at[57, 'Phase_2'] = st.session_state.cgp2
 
     if st.session_state.cfltp2:
-        df_cleaned.at[58, 'Phase_2'] = st.session_state.cfltp2
+        df_cleaned_phase_2.at[58, 'Phase_2'] = st.session_state.cfltp2
 
     if st.session_state.ogsgp2:
-        df_cleaned.at[59, 'Phase_2'] = st.session_state.ogsgp2
+        df_cleaned_phase_2.at[59, 'Phase_2'] = st.session_state.ogsgp2
 
     if st.session_state.ofo2:
-        df_cleaned.at[60, 'Phase_2'] = st.session_state.ofo2
+        df_cleaned_phase_2.at[60, 'Phase_2'] = st.session_state.ofo2
 
     if st.session_state.field53:
-        df_cleaned.at[63, 'Phase_2'] = st.session_state.field53
+        df_cleaned_phase_2.at[63, 'Phase_2'] = st.session_state.field53
 
     if st.session_state.field62:
-        df_cleaned.at[64, 'Phase_2'] = st.session_state.field62
+        df_cleaned_phase_2.at[64, 'Phase_2'] = st.session_state.field62
 
     if st.session_state.field58:
-        df_cleaned.at[65, 'Phase_2'] = st.session_state.field58
+        df_cleaned_phase_2.at[65, 'Phase_2'] = st.session_state.field58
 
     if st.session_state.field59:
-        df_cleaned.at[66, 'Phase_2'] = st.session_state.field59
+        df_cleaned_phase_2.at[66, 'Phase_2'] = st.session_state.field59
 
-    if st.session_state.field60:
-        df_cleaned.at[67, 'Phase_2'] = st.session_state.field60
+    # if st.session_state.field60:
+    #     df_cleaned_phase_2.at[67, 'Phase_2'] = st.session_state.field60
 
     if st.session_state.field54:
-        df_cleaned.at[68, 'Phase_2'] = st.session_state.field54
+        df_cleaned_phase_2.at[68, 'Phase_2'] = st.session_state.field54
 
     if st.session_state.field45:
-        df_cleaned.at[73, 'Phase_2'] = st.session_state.field45
+        df_cleaned_phase_2.at[73, 'Phase_2'] = st.session_state.field45
 
     if st.session_state.field46:
-        df_cleaned.at[74, 'Phase_2'] = st.session_state.field46
+        df_cleaned_phase_2.at[74, 'Phase_2'] = st.session_state.field46
 
-    if st.session_state.field47:
-        df_cleaned.at[75, 'Phase_2'] = st.session_state.field47
+    # if st.session_state.field47:
+    #     df_cleaned_phase_2.at[75, 'Phase_2'] = st.session_state.field47
 
     if st.session_state.ofwaccp2:
-        df_cleaned.at[79, 'Phase_2'] = st.session_state.ofwaccp2
+        df_cleaned_phase_2.at[79, 'Phase_2'] = st.session_state.ofwaccp2
 
     if st.session_state.drcitrp2:
-        df_cleaned.at[81, 'Phase_2'] = st.session_state.drcitrp2
+        df_cleaned_phase_2.at[81, 'Phase_2'] = st.session_state.drcitrp2
 
 
 
-    # file_extension = Path(file_path).suffix.lower()[1:]
-    # if file_extension in ['xlsx', 'xls']:
-    #     workbook = load_workbook(file_path)
-    #     sheet = workbook['Inp_C']
+    file_extension = Path(file_path).suffix.lower()[1:]
+    if file_extension in ['xlsx', 'xls']:
+        workbook = load_workbook(file_path)
+        sheet = workbook['Inp_C']
 
-    # if 'Phase_2' in df_cleaned.columns:
-    #     sheet.cell(row=11, column=11, value=df_cleaned.at[6, 'Phase_2'])
-    #     sheet.cell(row=14, column=11, value=df_cleaned.at[9, 'Phase_2'])
-    #     sheet.cell(row=15, column=11, value=df_cleaned.at[10, 'Phase_2']) 
-    #     sheet.cell(row=16, column=11, value=df_cleaned.at[11, 'Phase_2']) 
-    #     sheet.cell(row=19, column=11, value=df_cleaned.at[14, 'Phase_2']) 
-    #     sheet.cell(row=20, column=11, value=df_cleaned.at[15, 'Phase_2']) 
-    #     sheet.cell(row=21, column=11, value=df_cleaned.at[16, 'Phase_2']) 
-    #     sheet.cell(row=24, column=11, value=df_cleaned.at[19, 'Phase_2']) 
-    #     sheet.cell(row=25, column=11, value=df_cleaned.at[20, 'Phase_2']) 
-    #     sheet.cell(row=26, column=11, value=df_cleaned.at[21, 'Phase_2']) 
-    #     sheet.cell(row=30, column=11, value=df_cleaned.at[25, 'Phase_2']) 
-    #     sheet.cell(row=31, column=11, value=df_cleaned.at[26, 'Phase_2']  / 100) 
-    #     sheet.cell(row=32, column=11, value=df_cleaned.at[27, 'Phase_2']) 
-    #     sheet.cell(row=37, column=11, value=df_cleaned.at[32, 'Phase_2'] / 100) 
-    #     sheet.cell(row=38, column=11, value=df_cleaned.at[33, 'Phase_2'] / 100) 
-    #     sheet.cell(row=41, column=11, value=df_cleaned.at[36, 'Phase_2'] / 100) 
-    #     sheet.cell(row=44, column=11, value=df_cleaned.at[39, 'Phase_2'] / 100) 
-    #     sheet.cell(row=47, column=11, value=df_cleaned.at[42, 'Phase_2'] / 100) 
-    #     sheet.cell(row=48, column=11, value=df_cleaned.at[43, 'Phase_2'] / 100) 
-    #     sheet.cell(row=62, column=11, value=df_cleaned.at[57, 'Phase_2']) 
-    #     sheet.cell(row=63, column=11, value=df_cleaned.at[58, 'Phase_2']) 
-    #     sheet.cell(row=64, column=11, value=df_cleaned.at[59, 'Phase_2']) 
-    #     sheet.cell(row=65, column=11, value=df_cleaned.at[60, 'Phase_2']) 
-    #     sheet.cell(row=68, column=11, value=df_cleaned.at[63, 'Phase_2']) 
-    #     sheet.cell(row=69, column=11, value=df_cleaned.at[64, 'Phase_2']) 
-    #     sheet.cell(row=70, column=11, value=df_cleaned.at[65, 'Phase_2']) 
-    #     sheet.cell(row=71, column=11, value=df_cleaned.at[66, 'Phase_2']) 
-    #     sheet.cell(row=72, column=11, value=df_cleaned.at[67, 'Phase_2']) 
-    #     sheet.cell(row=78, column=11, value=df_cleaned.at[73, 'Phase_2'] / 100)
-    #     sheet.cell(row=79, column=11, value=df_cleaned.at[74, 'Phase_2'] / 100)
-    #     sheet.cell(row=80, column=11, value=df_cleaned.at[75, 'Phase_2'] / 100)
-    #     sheet.cell(row=84, column=11, value=df_cleaned.at[79, 'Phase_2']  / 100)
-    #     sheet.cell(row=86, column=11, value=df_cleaned.at[81, 'Phase_2']  / 100)
+    if 'Phase_2' in df_cleaned_phase_2.columns:
+        sheet.cell(row=11, column=11, value=df_cleaned_phase_2.at[6, 'Phase_2'])
+        sheet.cell(row=14, column=11, value=df_cleaned_phase_2.at[9, 'Phase_2'])
+        sheet.cell(row=15, column=11, value=df_cleaned_phase_2.at[10, 'Phase_2']) 
+        # sheet.cell(row=16, column=11, value=df_cleaned_phase_2.at[11, 'Phase_2']) 
+        # sheet.cell(row=19, column=11, value=df_cleaned_phase_2.at[14, 'Phase_2']) 
+        sheet.cell(row=20, column=11, value=df_cleaned_phase_2.at[15, 'Phase_2']) 
+        # sheet.cell(row=21, column=11, value=df_cleaned_phase_2.at[16, 'Phase_2']) 
+        # sheet.cell(row=24, column=11, value=df_cleaned_phase_2.at[19, 'Phase_2']) 
+        sheet.cell(row=25, column=11, value=df_cleaned_phase_2.at[20, 'Phase_2']) 
+        # sheet.cell(row=26, column=11, value=df_cleaned_phase_2.at[21, 'Phase_2']) 
+        sheet.cell(row=30, column=11, value=df_cleaned_phase_2.at[25, 'Phase_2']) 
+        sheet.cell(row=31, column=11, value=df_cleaned_phase_2.at[26, 'Phase_2']  / 100) 
+        # sheet.cell(row=32, column=11, value=df_cleaned_phase_2.at[27, 'Phase_2']) 
+        sheet.cell(row=37, column=11, value=df_cleaned_phase_2.at[32, 'Phase_2'] / 100) 
+        # sheet.cell(row=38, column=11, value=df_cleaned_phase_2.at[33, 'Phase_2'] / 100) 
+        sheet.cell(row=41, column=11, value=df_cleaned_phase_2.at[36, 'Phase_2'] / 100) 
+        sheet.cell(row=44, column=11, value=df_cleaned_phase_2.at[39, 'Phase_2'] / 100) 
+        sheet.cell(row=47, column=11, value=df_cleaned_phase_2.at[42, 'Phase_2'] / 100) 
+        sheet.cell(row=48, column=11, value=df_cleaned_phase_2.at[43, 'Phase_2'] / 100) 
+        sheet.cell(row=62, column=11, value=df_cleaned_phase_2.at[57, 'Phase_2']) 
+        sheet.cell(row=63, column=11, value=df_cleaned_phase_2.at[58, 'Phase_2'])   
+        sheet.cell(row=64, column=11, value=df_cleaned_phase_2.at[59, 'Phase_2']) 
+        sheet.cell(row=65, column=11, value=df_cleaned_phase_2.at[60, 'Phase_2']) 
+        sheet.cell(row=68, column=11, value=df_cleaned_phase_2.at[63, 'Phase_2']) 
+        sheet.cell(row=69, column=11, value=df_cleaned_phase_2.at[64, 'Phase_2']) 
+        sheet.cell(row=70, column=11, value=df_cleaned_phase_2.at[65, 'Phase_2']) 
+        sheet.cell(row=71, column=11, value=df_cleaned_phase_2.at[66, 'Phase_2']) 
+        # sheet.cell(row=72, column=11, value=df_cleaned_phase_2.at[67, 'Phase_2']) 
+        sheet.cell(row=78, column=11, value=df_cleaned_phase_2.at[73, 'Phase_2'] / 100)
+        sheet.cell(row=79, column=11, value=df_cleaned_phase_2.at[74, 'Phase_2'] / 100)
+        # sheet.cell(row=80, column=11, value=df_cleaned_phase_2.at[75, 'Phase_2'] / 100)
+        sheet.cell(row=84, column=11, value=df_cleaned_phase_2.at[79, 'Phase_2']  / 100)
+        sheet.cell(row=86, column=11, value=df_cleaned_phase_2.at[81, 'Phase_2']  / 100)
 
+        workbook.save(file_path)
 
-    #     workbook.save(file_path)
+        # st.write(df_cleaned_phase_2,"updated one")
 
 
 elif st.session_state.page == 'risk-management':
@@ -1210,6 +1224,24 @@ elif st.session_state.page == 'risk-management':
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
         '<strong>Risk Assesment</strong>'
         '</div>', unsafe_allow_html=True)
+
+
+            
+    df = load_financial_model(file_path,sheet_name='Sheet1',header=4)
+
+
+    df = df.iloc[:, 1:]
+
+    # st.write("Columns in the DataFrame:", df.columns.tolist())
+
+    df.columns = df.columns.str.strip()
+
+    # df = df.drop([37,38])
+
+
+    df['Mitigation cost'] = df['Mitigation cost'].fillna(0)
+   
+    df = df.dropna(axis=1, how='any')
 
 
     if 'editable_values' not in st.session_state:
@@ -1222,48 +1254,15 @@ elif st.session_state.page == 'risk-management':
                 "Probability of Occurrence (%)", 
                 "Allocation to Government (%)", 
                 "Allocation to Private Sector (%)",
-                "mitigation cost"
+                "Mitigation cost"
             ]
         }
 
-    # Load the Excel file into a Pandas DataFrame
-    # df = pd.read_excel(excel_file_path, sheet_name='Sheet1', header=4)
-    # def load_financial_model(file_path):
-    #     return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
-    
-    # df = load_financial_model('Project Damietta_CashFlow Model_01b.xlsx')
-
-    # @st.cache_data
-    # def load_financial_model(file_path):
-    #     file_extension = Path(file_path).suffix.lower()[1:]
-        
-    #     if file_extension == 'xlsx':
-    #         return pd.read_excel(file_path, sheet_name='Sheet1',header=4, engine='openpyxl')
-    #     elif file_extension == 'xls':
-    #         return pd.read_excel(file_path, sheet_name='Sheet1',header=4)
-    #     elif file_extension == 'csv':
-    #         return pd.read_csv(file_path)
-    #     else:
-    #         raise Exception("File not supported")
- 
-    
-        
-    df = load_financial_model(file_path,sheet_name='Sheet1',header=4)
-
-
-
-    df = df.iloc[:, 1:]
-
-    # st.write(df)
-
-    df = df.drop([37,38])
-   
-    df = df.dropna(axis=1, how='any')
-
-    
 
     # Extract risk list
     risk_list = df['Risk'].dropna().tolist()
+
+    # st.write(df.columns.tolist())
 
     # Store selected risks in session state
     if 'selected_risks' not in st.session_state:
@@ -1299,18 +1298,21 @@ elif st.session_state.page == 'risk-management':
 
         st.session_state.selected_risks[i] = selected_risk
 
+
         # If a valid risk is selected, show editable inputs
         if selected_risk != "Select a risk":
             selected_risk_data = df[df['Risk'] == selected_risk].iloc[0]
 
-                # Use an expander to show editable fields for the selected risk
+            # Use an expander to show editable fields for the selected risk
             with st.expander(f"Details for {selected_risk}"):
                 for column in editable_fields:
                     # Check if the column is one of the exceptions
-                    if column in ["Mitigation cost"]:
-                        current_value_str = "0.0"
+                    if column in ["Cost of risk on the Government (post mitigation)", "Cost of risk on the Private Sector (post mitigation)"]:
+                        # Set value to 0 if the risk is not selected
+                        current_value = 0 if st.session_state.selected_risks[i] == "Select a risk" else selected_risk_data[column]
                     else:
-                        current_value = selected_risk_data[column] if pd.notna(selected_risk_data[column]) else ""  # Set default value to 0 for other fields
+                        # Directly assign the value without checking for NaN
+                        current_value = selected_risk_data[column]
 
                         current_value_str = f"{current_value * 100:.2f}" if column in [
                             "Percentage of Base Cost (%)", 
@@ -1340,41 +1342,86 @@ elif st.session_state.page == 'risk-management':
                             pass
                     else:
                         df.loc[df['Risk'] == selected_risk, column] = new_value
-    # if st.button("Save Changes"):
-    #     if "Select a risk" in st.session_state.selected_risks:
-    #         st.error("Please select all 15 risks before saving changes.")
-    #     else:
-    #         try:
-    #             file_extension = Path(file_path).suffix.lower()[1:]
-    #             if file_extension in ['xlsx', 'xls']:
-    #                 book = load_workbook(file_path)
-    #                 sheet = book['Sheet1']
+        
+    if st.button("Save Changes"):
+    # Check if at least one risk has been selected
+        if all(risk == "Select a risk" for risk in st.session_state.selected_risks):
+            st.error("Please select at least one risk before saving changes.")
+        else:
+            try:
+                file_extension = Path(file_path).suffix.lower()[1:]
+                if file_extension in ['xlsx', 'xls']:
+                        workbook = load_workbook(file_path)
+                        sheet = workbook['Sheet1']
 
-    #             # Iterate through all selected risks and update corresponding rows in the Excel sheet
-    #             for i, selected_risk in enumerate(st.session_state.selected_risks):
-    #                 # Find the row corresponding to the selected risk
-    #                 risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
+                # Iterate through all selected risks and update corresponding rows in the Excel sheet
+                for i, selected_risk in enumerate(st.session_state.selected_risks):
 
-    #                 # Update only the changed fields in the sheet
-    #                 for column in editable_fields:
-    #                     col_idx = df.columns.get_loc(column) + 2  
+                    if selected_risk != "Select a risk":
 
-    #                     if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
-    #                                 "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
-    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
-    #                     elif column == "mitigation cost":
-    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-    #                     else:
-    #                         sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
-    #             book.save(file_path)
-    #             st.success("All changes have been saved successfully!")
+                        if selected_risk in df['Risk'].values:
+                            # Find the row corresponding to the selected risk
+                            risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
 
-    #         except Exception as e:
-    #             st.error(f"Error saving changes: {e}")
+                            # st.write(risk_row,'----------------------row')
+
+                        # Update only the changed fields in the sheet
+                        for column in editable_fields:
+
+                            # st.write(df.columns.get_loc(column),'-----------------original column')
+                            col_idx = df.columns.get_loc(column) + 2  
+
+                            if column == "Allocation to Government (%)":
+                                col_idx += 1  
+
+                            if column == "Allocation to Private Sector (%)":
+                                col_idx += 1  
+
+                            if column == "Mitigation cost":
+                                col_idx += 3    
+
+                            st.write(f"Writing column '{column}' at Excel column index {col_idx}")
+
+                            st.write(col_idx)
+
+                            if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+                                        "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
+                                sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
+                            elif column == "Mitigation cost":
+                                sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+                            else:
+                                sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
+
+                # st.write('Updated frame',df)
+
+                st.session_state.risk_assement_df = df
+                output = io.BytesIO()
+                workbook.save(file_path)
+                output.seek(0)
+
+                st.session_state.workbook = output
+                st.success("All changes have been saved successfully!")
+
+                
+
+                
+                # df_dash = load_financial_model(file_path,sheet_name='Output',header=7)
+
+                # st.write(df_dash)
+
+            except Exception as e:
+                st.error(f"Error saving changes: {e}")
 
     if st.session_state.page == 'risk-management':
-        st.button("Back" , on_click = continue_to_phase2)
-    st.button("Dashboard",on_click = continue_to_dashboard)
+        # Create two columns with custom width ratios to display buttons closer together
+        col1, col2 = st.columns([1,18])  # Each column gets 45% of the width
+
+        # Place the "Back" button in the first column and the "Dashboard" button in the second column
+        with col1:
+            st.button("Back", on_click=continue_to_phase2)
+
+        with col2:
+            st.button("Dashboard", on_click=continue_to_dashboard)
 
 elif st.session_state.page == 'dashboard':
 
@@ -1390,7 +1437,19 @@ elif st.session_state.page == 'dashboard':
     st.sidebar.header("Dashboard Navigation")
     options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
     if  options == "Data Overview":
+
+        # st.write(file_path,'----------file pathhh')
+        
         df = load_financial_model(file_path,sheet_name='Output',header=7)
+
+        # st.write(df)
+
+        if df is None or df.empty:
+            st.error("Failed to load data from the Output sheet.")
+        # else:
+        #     st.write(df)
+
+        # st.write(df)
 
         fixed_indices = [0, 1, 2,3,9]
 
@@ -1398,11 +1457,15 @@ elif st.session_state.page == 'dashboard':
 
         indcies_to_drop = range_indices + fixed_indices
 
-        df_cleaned = df.drop(fixed_indices)
+        df_cleaned = df.drop(fixed_indices) 
+
+        # st.write(df_cleaned)
 
 
         # Total risk values:
-        df_risks = load_financial_model(file_path,sheet_name='Sheet1',header=4)
+        df_risks = load_financial_model(file_path,sheet_name='Sheet1',header=None)
+
+        # st.write(df_risks)
 
         cell_value = df_risks.iloc[38, 14]
         cell_value_2 = df_risks.iloc[38, 15]
@@ -1411,7 +1474,7 @@ elif st.session_state.page == 'dashboard':
         rounded_value_risk_total_2 = f'{cell_value_2:.2f}'
 
 
-        # st.write(df_risks)
+        
 
 
         # Dashboard title
@@ -1463,43 +1526,108 @@ elif st.session_state.page == 'dashboard':
         )
 
         # Create a container for the cards to ensure they are displayed inline
-        cols = st.columns(6)
+        cols = st.columns(8)
 
         # Define a function to create a styled metric card with different colors
         def create_metric_card(col, label, value, color):
             col.markdown(
                 f"""
                 <div style="
-                    border-radius: 10px; 
-                    padding: 15px; 
-                    text-align: left; 
-                    background-color: {color}; 
+                    border-radius: 10px;
+                    padding: 15px;
+                    text-align: center;
+                    background-color: {color};
                     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
                     color: white;
                     margin-bottom: 15px;
-                    display:flex;
-                    flex-direction:column;
-                    align-items:center;
-                    min-height:144px
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 124px;
+                    flex-grow: 1;  /* Allow columns to grow equally */
+                    margin: 10px;
                 ">
-                    <h4 style="margin: 0; font-size: 15px; font-weight: 800;text-align:center">{label}</h4>
-                    <p style="font-size: 16px;font-weight:900; margin: 5px 0 0 0;">{value}</p>
+                    <h4 style="margin: 0; font-size: 15px; font-weight: 800;">{label}</h4>
+                    <p style="font-size: 16px; font-weight: 900; margin: 5px 0 0 0;">{value}</p>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
-        # Create cards for each metric with custom colors
-        create_metric_card(cols[0], "Total Unity Charge - Phase 1", f"{total_unitary_charge_phase_1:.2f} LE/m³", "#00C9A7")  # Navy blue
-        create_metric_card(cols[1], "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
-        create_metric_card(cols[2], "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
-        create_metric_card(cols[3], "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
-        create_metric_card(cols[4], "Cost of risk on the Government (post mitigation)", f"{rounded_value_risk_total}", "#E67E22")  
-        create_metric_card(cols[5], "Cost of risk on the Private (post mitigation)", f"{rounded_value_risk_total_2}", "#D35400") 
+        # Create two columns for the first pair of metric cards
+        col1, col2 = st.columns(2)
+        create_metric_card(col1, "Total Unity Charge - Phase 1", f"{total_unitary_charge_phase_1:.2f} LE/m³", "#00C9A7")  # Navy blue
+        create_metric_card(col2, "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
+
+        # Create two columns for the second pair of metric cards
+        col3, col4 = st.columns(2)
+        create_metric_card(col3, "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
+        create_metric_card(col4, "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
+
+        # Create two columns for the third pair of metric cards
+        col5, col6 = st.columns(2)
+        create_metric_card(col5, "Cost of risk on the Government (LE)", f"{rounded_value_risk_total}", "#E67E22")  
+        create_metric_card(col6, "Cost of risk on the Private (LE)", f"{rounded_value_risk_total_2}", "#999B27")
+
+        # Create two columns for the third pair of metric cards
+        col7, col8 = st.columns(2)
+        create_metric_card(col5, "Total Debt-Phase 1", f"{rounded_value_risk_total}", "#1E90FF")  
+        create_metric_card(col6, "Total Debt- Phase 2", f"{rounded_value_risk_total_2}", "#FF7F50")
 
         st.divider()
 
-        # Tariffs Comparison (Phase 1 vs Phase 2)
+
+
+        tariff_labels = df_cleaned['Unnamed: 4'].iloc[:5]  
+        tariff_values_phase_1 = df_cleaned['Phase_1'].iloc[:5].round(2)  
+        tariff_values_phase_2 = df_cleaned['Phase_2'].iloc[:5].round(2)  
+
+        fig_pie_phase_1 = px.pie(
+            names=tariff_labels,  # Tariff labels
+            values=tariff_values_phase_1,  # Rounded tariff values for Phase 1
+            title="Unitary Charge Breakdown - Phase 1",
+            color_discrete_sequence=["#00C9A7", "#FFDD44", "#17A2B8", "#E74C3C", "#E67E22"],  # Matching color palette
+            hole=0.4  # Donut chart
+        )
+
+        fig_pie_phase_2 = px.pie(
+            names=tariff_labels,  # Tariff labels
+            values=tariff_values_phase_2,  # Rounded tariff values for Phase 2
+            title="Unitary Charge Breakdown - Phase 2",
+            color_discrete_sequence=["#00C9A7", "#FFDD44", "#17A2B8", "#E74C3C", "#E67E22"],  # Matching color palette
+            hole=0.4  # Donut chart
+        )
+
+        # Update traces to position labels inside for larger slices and outside for smaller ones
+        fig_pie_phase_1.update_traces(
+            textposition='auto',  # Automatically position based on slice size
+            textinfo='value', 
+            insidetextorientation='auto'  
+        )
+
+        fig_pie_phase_2.update_traces(
+            textposition='auto', 
+            textinfo='value',  
+            insidetextorientation='auto'  
+        )
+
+       
+        for fig in [fig_pie_phase_1, fig_pie_phase_2]:
+            fig.update_layout(
+                title_font=dict(size=18, color='darkblue'),
+                showlegend=True,  # Display labels as legend
+                legend=dict(orientation="h", y=-0.2, title=None)  # Position legend below the pie chart
+            )
+
+        cols_pie = st.columns(2)
+        with cols_pie[0]:
+            st.plotly_chart(fig_pie_phase_1, use_container_width=True)
+        with cols_pie[1]:
+            st.plotly_chart(fig_pie_phase_2, use_container_width=True)
+
+            st.divider()
+
         st.markdown("""
             <style>
                 .custom-header {
@@ -1514,11 +1642,12 @@ elif st.session_state.page == 'dashboard':
                     margin-bottom: 10px;
                 }
             </style>
-            <div class="custom-header">Comparison of Tariffs between Phase 1 and Phase 2</div>
+            <div class="custom-header">Tariffs between (Phase 1 and Phase 2)</div>
             """, unsafe_allow_html=True
         )
 
         tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:5].set_index('Unnamed: 4')
+
 
         fig = px.bar(
             tariffs,
@@ -1526,7 +1655,7 @@ elif st.session_state.page == 'dashboard':
             title="Tariff Comparison (Phase 1 vs Phase 2)",
             color_discrete_sequence=["#001f3f", "#FFDD44"],
             labels={"value": "Tariff", "Unnamed: 4": "Metric"},
-            text_auto=True  # Display labels on bars
+            text_auto=True  
         )
 
         fig.update_layout(
@@ -1536,7 +1665,6 @@ elif st.session_state.page == 'dashboard':
             legend=dict(orientation="h", y=1.1)
         )
 
-        # Update traces to position labels on top of bars
         fig.update_traces(
             textposition="outside"
         )
@@ -1571,7 +1699,7 @@ elif st.session_state.page == 'dashboard':
             equity_irr_data,
             x="Phase",
             y="Equity IRR (%)",
-            title="Equity IRR Distribution between Phase 1 and Phase 2",
+            title="Equity IRR Distribution between (Phase 1 and Phase 2)",
             color="Phase",
             color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},
             text="Equity IRR (%)"  # Adding labels for the bars
@@ -1588,8 +1716,8 @@ elif st.session_state.page == 'dashboard':
         )
 
         fig_bar.update_traces(
-            texttemplate='%{text:.2f}',  # Format text label as needed
-            textposition="outside" ,      # Position label on top of the bars
+            texttemplate='%{text:.2f}',  
+            textposition="outside" ,     
             textfont=dict(size=10)
         )
 
@@ -1610,7 +1738,7 @@ elif st.session_state.page == 'dashboard':
                     margin-bottom: 10px;
                 }
             </style>
-            <div class="custom-subheader">Total Unitary Charge Comparison</div>
+            <div class="custom-subheader">Total Unitary Charge between (Phase 1 & Phase 2)</div>
             """, unsafe_allow_html=True
         )
 
@@ -1623,7 +1751,7 @@ elif st.session_state.page == 'dashboard':
             unitary_charge_data,
             x="Phase",
             y="Total Unitary Charge (LE/m³)",
-            title="Total Unitary Charge for Phase 1 and Phase 2",
+            title="Total Unitary Charge for (Phase 1 and Phase 2)",
             color="Phase",
             color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},
             text="Total Unitary Charge (LE/m³)"  # Adding labels for the bars

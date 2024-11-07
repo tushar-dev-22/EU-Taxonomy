@@ -39,6 +39,9 @@ def load_financial_model(file_path,sheet_name,header):
         return pd.read_csv(file_path)
     else:
         raise Exception("File not supported")
+
+
+
     
 
 
@@ -885,7 +888,7 @@ elif st.session_state.page == 'phase':
             sheet.cell(row=84, column=10, value=df_cleaned.at[79, 'Phase_1']  / 100)
             sheet.cell(row=86, column=10, value=df_cleaned.at[81, 'Phase_1']  / 100)
 
-            workbook.save(file_path)
+            # workbook.save(file_path)
 
 
             st.session_state.df_cleaned_phase_1 = df_cleaned
@@ -1214,7 +1217,7 @@ elif st.session_state.page == 'phase2':
         sheet.cell(row=84, column=11, value=df_cleaned_phase_2.at[79, 'Phase_2']  / 100)
         sheet.cell(row=86, column=11, value=df_cleaned_phase_2.at[81, 'Phase_2']  / 100)
 
-        workbook.save(file_path)
+        # workbook.save(file_path)
 
         # st.write(df_cleaned_phase_2,"updated one")
 
@@ -1241,7 +1244,7 @@ elif st.session_state.page == 'risk-management':
 
     df['Mitigation cost'] = df['Mitigation cost'].fillna(0)
    
-    df = df.dropna(axis=1, how='any')
+    # df = df.dropna(axis=1, how='any')
 
 
     if 'editable_values' not in st.session_state:
@@ -1395,11 +1398,11 @@ elif st.session_state.page == 'risk-management':
                 # st.write('Updated frame',df)
 
                 st.session_state.risk_assement_df = df
-                output = io.BytesIO()
-                workbook.save(file_path)
-                output.seek(0)
+                # output = io.BytesIO()
+                # workbook.save(file_path)
+                # output.seek(0)
 
-                st.session_state.workbook = output
+                # st.session_state.workbook = output
                 st.success("All changes have been saved successfully!")
 
                 
@@ -1467,11 +1470,17 @@ elif st.session_state.page == 'dashboard':
 
         # st.write(df_risks)
 
-        cell_value = df_risks.iloc[38, 14]
-        cell_value_2 = df_risks.iloc[38, 15]
+        cell_value = df_risks.iloc[43, 14]
+        cell_value_2 = df_risks.iloc[43, 15]
+
+
 
         rounded_value_risk_total = f'{cell_value:.2f}'
         rounded_value_risk_total_2 = f'{cell_value_2:.2f}'
+
+
+        # st.write(rounded_value_risk_total)
+        # st.write(rounded_value_risk_total_2)
 
 
         
@@ -1506,11 +1515,11 @@ elif st.session_state.page == 'dashboard':
         equity_irr_phase_1 = df_cleaned.loc[10, 'Phase_1']
         equity_irr_phase_2 = df_cleaned.loc[10, 'Phase_2']
 
-        # Convert IRR to percentage
+
         equity_irr_phase_1_percentage = equity_irr_phase_1 * 100  
         equity_irr_phase_2_percentage = equity_irr_phase_2 * 100
 
-        # Summary Metrics Section
+
         st.markdown("""
             <style>
                 .custom-subheader {
@@ -1525,10 +1534,8 @@ elif st.session_state.page == 'dashboard':
             """, unsafe_allow_html=True
         )
 
-        # Create a container for the cards to ensure they are displayed inline
         cols = st.columns(8)
 
-        # Define a function to create a styled metric card with different colors
         def create_metric_card(col, label, value, color):
             col.markdown(
                 f"""
@@ -1555,22 +1562,19 @@ elif st.session_state.page == 'dashboard':
                 unsafe_allow_html=True
             )
 
-        # Create two columns for the first pair of metric cards
         col1, col2 = st.columns(2)
         create_metric_card(col1, "Total Unity Charge - Phase 1", f"{total_unitary_charge_phase_1:.2f} LE/m³", "#00C9A7")  # Navy blue
         create_metric_card(col2, "Total Unity Charge - Phase 2", f"{total_unitary_charge_phase_2:.2f} LE/m³", "#FFDD44")  # Gold/yellow
 
-        # Create two columns for the second pair of metric cards
         col3, col4 = st.columns(2)
         create_metric_card(col3, "Equity IRR - Phase 1", f"{equity_irr_phase_1_percentage:.2f}%", "#17A2B8")  # Teal
         create_metric_card(col4, "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
 
-        # Create two columns for the third pair of metric cards
         col5, col6 = st.columns(2)
         create_metric_card(col5, "Cost of risk on the Government (LE)", f"{rounded_value_risk_total}", "#E67E22")  
         create_metric_card(col6, "Cost of risk on the Private (LE)", f"{rounded_value_risk_total_2}", "#999B27")
 
-        # Create two columns for the third pair of metric cards
+
         col7, col8 = st.columns(2)
         create_metric_card(col5, "Total Debt-Phase 1", f"{rounded_value_risk_total}", "#1E90FF")  
         create_metric_card(col6, "Total Debt- Phase 2", f"{rounded_value_risk_total_2}", "#FF7F50")
@@ -1584,24 +1588,24 @@ elif st.session_state.page == 'dashboard':
         tariff_values_phase_2 = df_cleaned['Phase_2'].iloc[:5].round(2)  
 
         fig_pie_phase_1 = px.pie(
-            names=tariff_labels,  # Tariff labels
-            values=tariff_values_phase_1,  # Rounded tariff values for Phase 1
+            names=tariff_labels,  
+            values=tariff_values_phase_1,  
             title="Unitary Charge Breakdown - Phase 1",
-            color_discrete_sequence=["#00C9A7", "#FFDD44", "#17A2B8", "#E74C3C", "#E67E22"],  # Matching color palette
-            hole=0.4  # Donut chart
+            color_discrete_sequence=["#00C9A7", "#FFDD44", "#17A2B8", "#E74C3C", "#E67E22"],  
+            hole=0.4  
         )
 
         fig_pie_phase_2 = px.pie(
-            names=tariff_labels,  # Tariff labels
-            values=tariff_values_phase_2,  # Rounded tariff values for Phase 2
+            names=tariff_labels, 
+            values=tariff_values_phase_2,  
             title="Unitary Charge Breakdown - Phase 2",
-            color_discrete_sequence=["#00C9A7", "#FFDD44", "#17A2B8", "#E74C3C", "#E67E22"],  # Matching color palette
-            hole=0.4  # Donut chart
+            color_discrete_sequence=["#00C9A7", "#FFDD44", "#17A2B8", "#E74C3C", "#E67E22"],  
+            hole=0.4 
         )
 
-        # Update traces to position labels inside for larger slices and outside for smaller ones
+
         fig_pie_phase_1.update_traces(
-            textposition='auto',  # Automatically position based on slice size
+            textposition='auto',  
             textinfo='value', 
             insidetextorientation='auto'  
         )

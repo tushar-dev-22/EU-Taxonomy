@@ -666,12 +666,12 @@ elif st.session_state.page == 'phase':
         st.session_state.field14 = custom_percentage_input("Construction Interest Rate (Base Rate %) - Phase 1", '14', "Enter") 
         st.session_state.field15 = custom_percentage_input("Construction Interest Rate (Margin Spread %) - Phase 1",'15', "Enter")
         if st.session_state.field14 != 0 and st.session_state.field15 != 0:
-            st.write("All in Rate (%)", st.session_state.field14 + st.session_state.field15) # TBC
+            st.write("All in Rate (%)", st.session_state.field14 + st.session_state.field15) 
             st.session_state.field16 = st.session_state.field14 + st.session_state.field15
         st.session_state.field17 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 1",'17', "Enter")
         st.session_state.field18 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 1",'18', "Enter")
         if st.session_state.field17 != 0 and st.session_state.field18 != 0:
-            st.write("All in Rate (%) - Phase 1", st.session_state.field17 + st.session_state.field18) # TBC
+            st.write("All in Rate (%) - Phase 1", st.session_state.field17 + st.session_state.field18) 
             st.session_state.field19 = st.session_state.field17 + st.session_state.field18
         st.session_state.ofwaccp1 = custom_percentage_input("Offtake - WACC (%) - Phase 1" , "ofwaccp1key" , "Enter")
         st.session_state.drcitrp1 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 1","citrp1key" ,"Enter")
@@ -1454,7 +1454,7 @@ elif st.session_state.page == 'dashboard':
 
         # st.write(df)
 
-        fixed_indices = [0, 1, 2,3,9]
+        fixed_indices = [0, 1, 2,9]
 
         range_indices = list(range(11, 63))
 
@@ -1468,8 +1468,6 @@ elif st.session_state.page == 'dashboard':
         # Total risk values:
         df_risks = load_financial_model(file_path,sheet_name='Sheet1',header=None)
 
-        # st.write(df_risks)
-
         cell_value = df_risks.iloc[43, 14]
         cell_value_2 = df_risks.iloc[43, 15]
 
@@ -1477,6 +1475,26 @@ elif st.session_state.page == 'dashboard':
 
         rounded_value_risk_total = f'{cell_value:.2f}'
         rounded_value_risk_total_2 = f'{cell_value_2:.2f}'
+
+
+
+
+        df_totla_debt = load_financial_model(file_path,sheet_name='Phase_1',header=None)
+
+        cell_value = df_totla_debt.iloc[83, 5]
+
+        rounded_value_total_debt_1 = f'{cell_value:.2f}'
+
+        # st.write(rounded_value_total_debt_1)
+
+
+        df_totla_debt_2 = load_financial_model(file_path,sheet_name='Phase_2',header=None)
+
+        cell_value = df_totla_debt_2.iloc[83, 5]
+
+        rounded_value_total_debt_2 = f'{cell_value:.2f}'
+
+        # st.write(rounded_value_total_debt_2)
 
 
         # st.write(rounded_value_risk_total)
@@ -1576,14 +1594,18 @@ elif st.session_state.page == 'dashboard':
 
 
         col7, col8 = st.columns(2)
-        create_metric_card(col5, "Total Debt-Phase 1", f"{rounded_value_risk_total}", "#1E90FF")  
-        create_metric_card(col6, "Total Debt- Phase 2", f"{rounded_value_risk_total_2}", "#FF7F50")
+        create_metric_card(col5, "Total Debt-Phase 1", f"{rounded_value_total_debt_1}", "#1E90FF")  
+        create_metric_card(col6, "Total Debt- Phase 2", f"{rounded_value_total_debt_2}", "#FF7F50")
 
         st.divider()
 
 
 
         tariff_labels = df_cleaned['Unnamed: 4'].iloc[:5]  
+
+        # st.write(df_cleaned)
+
+        # st.write(tariff_labels)
         tariff_values_phase_1 = df_cleaned['Phase_1'].iloc[:5].round(2)  
         tariff_values_phase_2 = df_cleaned['Phase_2'].iloc[:5].round(2)  
 

@@ -208,6 +208,8 @@ if st.session_state.page == 'main':
         if st.button('Next') and st.session_state.field1 != "" and st.session_state.field2 != "" and st.session_state.field3 != "" and st.session_state.field4 != "" and st.session_state.field5 != "":
             st.session_state['show_eligibility'] = True
 
+        st.image("urbane.jpeg",width=150)
+
     # Main content
     with st.container():
         col1, col2 = st.columns((1, 5))
@@ -648,11 +650,11 @@ elif st.session_state.page == 'phase':
         if st.session_state.drtp1 != 0:
             st.session_state.dredp1 = st.write("Debt Repayment End Date: - Phase 1", calculate_future_date_years(st.session_state.drsdp1,st.session_state.drtp1)) # TBC
             st.session_state.dredp1 = calculate_future_date_years(st.session_state.drsdp1,st.session_state.drtp1)
-        st.session_state.cepsp1 = custom_number_input("Capital Expenditure - Pre sensitivity(in LE'000s) - Phase 1", 'cepsp1key', "Enter")
+        st.session_state.cepsp1 = custom_number_input("Capital Expenditure - Pre sensitivity(in LE’000 or $’000) - Phase 1", 'cepsp1key', "Enter")
         st.session_state.ces1 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 1", 'cesp1key', "Enter")
         if st.session_state.cepsp1 != 0 and st.session_state.ces1 != 0:
                 post_sensitivity_value = st.session_state.cepsp1 * (st.session_state.ces1 / 100)
-                st.write("Calculated Capital Expenditure - Post Sensitivity (in LE'000s):", post_sensitivity_value)
+                st.write("Calculated Capital Expenditure - Post Sensitivity (in LE’000 or $’000):", post_sensitivity_value)
                 st.session_state.field11 = post_sensitivity_value
         st.session_state.field12 = custom_percentage_input("Debt (%) - Phase 1", '12', "Enter")
         if st.session_state.field12 != 0:
@@ -690,10 +692,10 @@ elif st.session_state.page == 'phase':
                 '</div>',
                 unsafe_allow_html=True
             )
-            st.session_state.cgp1 = custom_number_input("Chlorine Gas (in LE'000s) - Phase 1",'cgp1key', "Enter", 0.0)
-            st.session_state.cfltp1 = custom_number_input("Chemical for laboratory test (in LE'000s) - Phase 1",'cfltp1key', "Enter", 0.0)
-            st.session_state.ogsgp1 = custom_number_input("Oil, Gas, Solar, and Gasoline (in LE'000s)  - Phase 1",'ogsgp1key', "Enter", 0.0)
-            st.session_state.ofo1 = custom_number_input("Other Fixed Opex (in LE'000s)  - Phase 1",'ofo1key', "Enter", 0.0)
+            st.session_state.cgp1 = custom_number_input("Chlorine Gas (in LE’000 or $’000) - Phase 1",'cgp1key', "Enter", 0.0)
+            st.session_state.cfltp1 = custom_number_input("Chemical for laboratory test (in LE’000 or $’000) - Phase 1",'cfltp1key', "Enter", 0.0)
+            st.session_state.ogsgp1 = custom_number_input("Fuel (Oil, Gas, Solar and Gasoline (in LE’000 or $’000) - Phase 1",'ogsgp1key', "Enter", 0.0)
+            st.session_state.ofo1 = custom_number_input("Other Fixed Opex (in LE’000 or $’000)  - Phase 1",'ofo1key', "Enter", 0.0)
         with col2:
 
             st.markdown(
@@ -702,14 +704,14 @@ elif st.session_state.page == 'phase':
                 '</div>',
                 unsafe_allow_html=True
             )
-            st.session_state.field25 = custom_number_input("Labor (in LE'000s) - Phase 1", '25',"Enter")
-            st.session_state.field26 = custom_number_input("Spare Part Cost  (in LE'000s) - Phase 1", '32',"Enter")
+            st.session_state.field25 = custom_number_input("Labor (in LE’000 or $’000) - Phase 1", '25',"Enter")
+            st.session_state.field26 = custom_number_input("Spare Part Cost  (in LE’000 or $’000) - Phase 1", '32',"Enter")
             st.session_state.field27 = custom_number_input("Energy Costs (LE/Kw) - Phase 1", '31',"Enter")
             st.session_state.field28 = custom_number_input("Energy Consumption (KW/m³) - Phase 1", '30',"Enter")
             if st.session_state.field27 != 0 and st.session_state.field28 != 0:
                 st.write("Effective Price- Energy Costs (LE/m³) - Phase 1",st.session_state.field27*st.session_state.field28)
                 st.session_state.field29 = st.session_state.field27*st.session_state.field28
-            st.session_state.field34 = custom_number_input("Maintenance Costs (in LE'000s/Year) - Phase 1", '26',"Enter")
+            st.session_state.field34 = custom_number_input("Maintenance Costs (in LE’000 or $’000/Year) - Phase 1", '26',"Enter")
         if check_phase1 and not check_phase2:
             st.button("Continue to Risk Management", on_click=continue_to_risk_management,key='cont1')
         if check_phase2:
@@ -983,11 +985,11 @@ elif st.session_state.page == 'phase2':
     if st.session_state.drtp2 != 0:
         st.session_state.dredp2 = st.write("Debt Repayment End Date: - Phase 2", calculate_future_date_years(st.session_state.drsdp2,st.session_state.drtp2)) # TBC
         st.session_state.dredp2 = calculate_future_date_years(st.session_state.drsdp2,st.session_state.drtp2)
-    st.session_state.cepsp2 = custom_number_input("Capital Expenditure - Pre sensitivity (in LE'000s) - Phase 2", 'cepsp1key', "Enter")
+    st.session_state.cepsp2 = custom_number_input("Capital Expenditure - Pre sensitivity (in LE’000 or $’000) - Phase 2", 'cepsp1key', "Enter")
     st.session_state.ces2 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 2", 'cesp1key', "Enter")
     if st.session_state.cepsp2 != 0 and st.session_state.ces2 != 0:
             post_sensitivity_value = st.session_state.cepsp2 * (st.session_state.ces2 / 100)
-            st.write("Calculated Capital Expenditure - Post Sensitivity (in LE'000s):", post_sensitivity_value)
+            st.write("Calculated Capital Expenditure - Post Sensitivity (in LE’000 or $’000):", post_sensitivity_value)
             st.session_state.field69 = post_sensitivity_value
     st.session_state.field40 = custom_percentage_input("Debt (%) - Phase 2", '40', "Enter",0.0) 
     if st.session_state.field40 != 0:
@@ -1022,10 +1024,10 @@ elif st.session_state.page == 'phase2':
             '</div>',
             unsafe_allow_html=True
         )
-        st.session_state.cgp2 = custom_number_input("Chlorine Gas (in LE'000s) - Phase 2",'cgp2key', "Enter",0.0)
-        st.session_state.cfltp2 = custom_number_input("Chemical for laboratory test (in LE'000s) - Phase 2",'cfltp2key', "Enter",0.0)
-        st.session_state.ogsgp2 = custom_number_input("Oil, Gas, Solar, and Gasoline (in LE'000s)  - Phase 2",'ogsgp2key', "Enter",0.0)
-        st.session_state.ofo2 = custom_number_input("Other Fixed Opex (in LE'000s)  - Phase 2",'ofo2key', "Enter",0.0)
+        st.session_state.cgp2 = custom_number_input("Chlorine Gas (in LE’000 or $’000) - Phase 2",'cgp2key', "Enter",0.0)
+        st.session_state.cfltp2 = custom_number_input("Chemical for laboratory test (in LE’000 or $’000) - Phase 2",'cfltp2key', "Enter",0.0)
+        st.session_state.ogsgp2 = custom_number_input("Fuel (Oil, Gas, Solar and Gasoline (in LE’000 or $’000) - Phase 2",'ogsgp2key', "Enter",0.0)
+        st.session_state.ofo2 = custom_number_input("Other Fixed Opex (in LE’000 or $’000)  - Phase 2",'ofo2key', "Enter",0.0)
     with col2:
         st.markdown(
             '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
@@ -1033,14 +1035,14 @@ elif st.session_state.page == 'phase2':
             '</div>',
             unsafe_allow_html=True
         )
-        st.session_state.field53 = custom_number_input("Labor (in LE'000s) - Phase 2", '53',"Enter",0.0)
-        st.session_state.field62 = custom_number_input("Spare Part Cost  (in LE'000s) - Phase 2", '32',"Enter")
+        st.session_state.field53 = custom_number_input("Labor (in LE’000 or $’000) - Phase 2", '53',"Enter",0.0)
+        st.session_state.field62 = custom_number_input("Spare Part Cost  (in LE’000 or $’000) - Phase 2", '32',"Enter")
         st.session_state.field59 = custom_number_input("Energy Costs (LE/Kw) - Phase 2", '59',"Enter",0.0)
         st.session_state.field58 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", '58',"Enter",0.0)
         if st.session_state.field58 != 0 and st.session_state.field59 != 0:
             st.write("Effective Price - Energy Costs (LE/m³) - Phase 2",st.session_state.field58*st.session_state.field59)
             st.session_state.field60 = st.session_state.field58*st.session_state.field59
-        st.session_state.field54 = custom_number_input("Maintenance Costs (in LE'000s/Year) - Phase 2", '54',"Enter",0.0)
+        st.session_state.field54 = custom_number_input("Maintenance Costs (in LE’000 or $’000/Year) - Phase 2", '54',"Enter",0.0)
     col1,col2 = st.columns([1,18])
     with col1:
         if st.session_state.page == 'phase2':
@@ -1628,13 +1630,13 @@ elif st.session_state.page == 'dashboard':
 
         fig_pie_phase_1.update_traces(
             textposition='auto',  
-            textinfo='value', 
+            textinfo='value+percent', 
             insidetextorientation='auto'  
         )
 
         fig_pie_phase_2.update_traces(
             textposition='auto', 
-            textinfo='value',  
+            textinfo='value+percent',  
             insidetextorientation='auto'  
         )
 
@@ -1652,158 +1654,6 @@ elif st.session_state.page == 'dashboard':
         with cols_pie[1]:
             st.plotly_chart(fig_pie_phase_2, use_container_width=True)
 
-            st.divider()
-
-        st.markdown("""
-            <style>
-                .custom-header {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #FFFFFF; /* White text */
-                    background-color: #001f3f; /* Navy blue background */
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    text-align: left;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Optional shadow for depth */
-                    margin-bottom: 10px;
-                }
-            </style>
-            <div class="custom-header">Tariffs between (Phase 1 and Phase 2)</div>
-            """, unsafe_allow_html=True
-        )
-
-        tariffs = df_cleaned[['Unnamed: 4', 'Phase_1', 'Phase_2']].iloc[:5].set_index('Unnamed: 4')
-
-
-        fig = px.bar(
-            tariffs,
-            barmode='group',
-            title="Tariff Comparison (Phase 1 vs Phase 2)",
-            color_discrete_sequence=["#001f3f", "#FFDD44"],
-            labels={"value": "Tariff", "Unnamed: 4": "Metric"},
-            text_auto=True  
-        )
-
-        fig.update_layout(
-            title_font=dict(size=18, color='darkblue'),
-            xaxis=dict(title="Metric"),
-            yaxis=dict(title="Tariff Value"),
-            legend=dict(orientation="h", y=1.1)
-        )
-
-        fig.update_traces(
-            textposition="outside"
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
-
-        # Equity IRR Bar Chart with Labels on Top
-        st.markdown("""
-            <style>
-                .custom-subheader {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #FFFFFF; /* White text for contrast */
-                    background-color: #FFDD44; /* Yellow background matching the dashboard theme */
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    text-align: left;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
-                    margin-bottom: 10px;
-                }
-            </style>
-            <div class="custom-subheader">Equity IRR Distribution</div>
-            """, unsafe_allow_html=True
-        )
-
-        equity_irr_data = {
-            "Phase": ["Phase 1", "Phase 2"],
-            "Equity IRR (%)": [equity_irr_phase_1_percentage, equity_irr_phase_2_percentage]
-        }
-
-        fig_bar = px.bar(
-            equity_irr_data,
-            x="Phase",
-            y="Equity IRR (%)",
-            title="Equity IRR Distribution between (Phase 1 and Phase 2)",
-            color="Phase",
-            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},
-            text="Equity IRR (%)"  # Adding labels for the bars
-        )
-
-        fig_bar.update_layout(
-            title_font=dict(size=18, color='darkblue'),
-            xaxis=dict(title="Phase"),
-            yaxis=dict(title="Equity IRR (%)"),
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            showlegend=False,
-            margin=dict(l=40, r=40, t=40, b=40)
-        )
-
-        fig_bar.update_traces(
-            texttemplate='%{text:.2f}',  
-            textposition="outside" ,     
-            textfont=dict(size=10)
-        )
-
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-        # Total Unitary Charge Bar Chart with Labels on Top
-        st.markdown("""
-            <style>
-                .custom-subheader {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #FFFFFF; /* White text for contrast */
-                    background-color: #001f3f; /* Yellow background matching the dashboard theme */
-                    padding: 10px 15px;
-                    border-radius: 8px;
-                    text-align: left;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow for depth */
-                    margin-bottom: 10px;
-                }
-            </style>
-            <div class="custom-subheader">Total Unitary Charge between (Phase 1 & Phase 2)</div>
-            """, unsafe_allow_html=True
-        )
-
-        unitary_charge_data = {
-            "Phase": ["Phase 1", "Phase 2"],
-            "Total Unitary Charge (LE/m³)": [total_unitary_charge_phase_1, total_unitary_charge_phase_2]
-        }
-
-        fig_bar = px.bar(
-            unitary_charge_data,
-            x="Phase",
-            y="Total Unitary Charge (LE/m³)",
-            title="Total Unitary Charge for (Phase 1 and Phase 2)",
-            color="Phase",
-            color_discrete_map={"Phase 1": "#001f3f", "Phase 2": "#FFDD44"},
-            text="Total Unitary Charge (LE/m³)"  # Adding labels for the bars
-        )
-
-        fig_bar.update_layout(
-            title_font=dict(size=18, color='darkblue'),
-            xaxis=dict(title="Phase"),
-            yaxis=dict(title="Total Unitary Charge (LE/m³)"),
-            plot_bgcolor="rgba(0,0,0,0)",
-            paper_bgcolor="rgba(0,0,0,0)",
-            showlegend=False,
-            margin=dict(l=40, r=40, t=40, b=40)
-        )
-
-        fig_bar.update_traces(
-            texttemplate='%{text:.2f}',  # Format text label as needed
-            textposition="outside" ,      # Position label on top of the bars
-            textfont=dict(size=10)
-        )
-
-        st.plotly_chart(fig_bar, use_container_width=True)
-
-        # Conclusion or Additional Notes Section
-        st.markdown("### Additional Insights")
-        st.text("Provide additional analysis, insights, or explanations here to aid user interpretation.")
 
     elif options == "User Details":
         col1,col2 = st.columns([3,5])

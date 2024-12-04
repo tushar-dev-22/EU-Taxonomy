@@ -208,7 +208,19 @@ if st.session_state.page == 'main':
         if st.button('Next') and st.session_state.field1 != "" and st.session_state.field2 != "" and st.session_state.field3 != "" and st.session_state.field4 != "" and st.session_state.field5 != "":
             st.session_state['show_eligibility'] = True
 
+        st.markdown("<br><br>", unsafe_allow_html=True)
+
         st.image("urbane.jpeg",width=150)
+
+
+        st.markdown(
+            """
+            <div style='text-align: center; font-family: Arial, sans-serif; font-size: 14px; color: #4CAF50; margin-top: 15px;'>
+                Developed by <b>GreenUrbane</b>
+            </div>
+            """,
+        unsafe_allow_html=True
+)
 
     # Main content
     with st.container():
@@ -354,7 +366,7 @@ if st.session_state.page == 'main':
                         '</div>', unsafe_allow_html=True)
                     answer7 = st.number_input('Enter your response (kWh/m3)1', min_value=0.0, max_value=100.0, step=0.01,label_visibility='collapsed')
             #2B
-            if (answer2 == "Yes" and (answer5 <= 1.5 and answer4 <= 0.5) and (answer5 != 0.0 and answer4 != 0.0)) or (answer3 == "Yes"  and (answer6 >= 20 and answer7 >= 20)):
+            if (answer2 == "Yes" and (answer5 < 1.5 and answer4 < 0.5) and (answer5 != 0.0 and answer4 != 0.0)) or (answer3 == "Yes"  and (answer6 >= 20 and answer7 >= 20)):
                 with col2:
                     st.markdown(
                         f'<div style="background-color: {bg_color}; color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; width: 100%;" class="big-font">'
@@ -706,12 +718,12 @@ elif st.session_state.page == 'phase':
             )
             st.session_state.field25 = custom_number_input("Labor (in LE’000 or $’000) - Phase 1", '25',"Enter")
             st.session_state.field26 = custom_number_input("Spare Part Cost  (in LE’000 or $’000) - Phase 1", '32',"Enter")
-            st.session_state.field27 = custom_number_input("Energy Costs (LE/Kw) - Phase 1", '31',"Enter")
+            st.session_state.field27 = custom_number_input("Energy Costs (LE or $/Kw) - Phase 1", '31',"Enter")
             st.session_state.field28 = custom_number_input("Energy Consumption (KW/m³) - Phase 1", '30',"Enter")
             if st.session_state.field27 != 0 and st.session_state.field28 != 0:
                 st.write("Effective Price- Energy Costs (LE/m³) - Phase 1",st.session_state.field27*st.session_state.field28)
                 st.session_state.field29 = st.session_state.field27*st.session_state.field28
-            st.session_state.field34 = custom_number_input("Maintenance Costs (in LE’000 or $’000/Year) - Phase 1", '26',"Enter")
+            st.session_state.field34 = custom_number_input("Maintenance Costs (in LE’000 or $’000) - Phase 1", '26',"Enter")
         if check_phase1 and not check_phase2:
             st.button("Continue to Risk Management", on_click=continue_to_risk_management,key='cont1')
         if check_phase2:
@@ -849,7 +861,6 @@ elif st.session_state.page == 'phase':
         if file_extension in ['xlsx', 'xls']:
             with open(file_path, 'rb') as file:
                 content = file.read(4)
-                st.write(content)
                 workbook = load_workbook(file_path)
                 sheet = workbook['Inp_C']
 
@@ -1037,12 +1048,12 @@ elif st.session_state.page == 'phase2':
         )
         st.session_state.field53 = custom_number_input("Labor (in LE’000 or $’000) - Phase 2", '53',"Enter",0.0)
         st.session_state.field62 = custom_number_input("Spare Part Cost  (in LE’000 or $’000) - Phase 2", '32',"Enter")
-        st.session_state.field59 = custom_number_input("Energy Costs (LE/Kw) - Phase 2", '59',"Enter",0.0)
+        st.session_state.field59 = custom_number_input("Energy Costs (LE or $/Kw) - Phase 2", '59',"Enter",0.0)
         st.session_state.field58 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", '58',"Enter",0.0)
         if st.session_state.field58 != 0 and st.session_state.field59 != 0:
             st.write("Effective Price - Energy Costs (LE/m³) - Phase 2",st.session_state.field58*st.session_state.field59)
             st.session_state.field60 = st.session_state.field58*st.session_state.field59
-        st.session_state.field54 = custom_number_input("Maintenance Costs (in LE’000 or $’000/Year) - Phase 2", '54',"Enter",0.0)
+        st.session_state.field54 = custom_number_input("Maintenance Costs (in LE’000 or $’000) - Phase 2", '54',"Enter",0.0)
     col1,col2 = st.columns([1,18])
     with col1:
         if st.session_state.page == 'phase2':
@@ -1591,8 +1602,8 @@ elif st.session_state.page == 'dashboard':
         create_metric_card(col4, "Equity IRR - Phase 2", f"{equity_irr_phase_2_percentage:.2f}%", "#E74C3C")  # Red
 
         col5, col6 = st.columns(2)
-        create_metric_card(col5, "Cost of risk on the Government (LE)", f"{rounded_value_risk_total}", "#E67E22")  
-        create_metric_card(col6, "Cost of risk on the Private (LE)", f"{rounded_value_risk_total_2}", "#999B27")
+        create_metric_card(col5, "Cost of risk on the Government (LE or $)", f"{rounded_value_risk_total}", "#E67E22")  
+        create_metric_card(col6, "Cost of risk on the Private (LE or $)", f"{rounded_value_risk_total_2}", "#999B27")
 
 
         col7, col8 = st.columns(2)
@@ -1627,27 +1638,35 @@ elif st.session_state.page == 'dashboard':
             hole=0.4 
         )
 
-
+        # Update traces for better text positioning
         fig_pie_phase_1.update_traces(
-            textposition='auto',  
-            textinfo='value+percent', 
-            insidetextorientation='auto'  
+            textposition='auto',  # Automatically decide based on space
+            textinfo='value+percent',  # Show both value and percent
+            insidetextorientation='radial',  # Make the text readable inside
+            marker=dict(line=dict(color='white', width=1)),  # Add borders for clarity
+            # pull=[0, 0, 0, 0.1, 0.2],  # Pull specific small slices for better clarity
+            textfont=dict(size=14)  # Adjust font size for better readability
         )
 
         fig_pie_phase_2.update_traces(
             textposition='auto', 
             textinfo='value+percent',  
-            insidetextorientation='auto'  
+            insidetextorientation='radial', 
+            marker=dict(line=dict(color='white', width=1)), 
+            # pull=[0, 0, 0, 0.1, 0.2],
+            textfont=dict(size=14)
         )
 
-       
+        # Update layout to match better spacing
         for fig in [fig_pie_phase_1, fig_pie_phase_2]:
             fig.update_layout(
                 title_font=dict(size=18, color='darkblue'),
-                showlegend=True,  # Display labels as legend
-                legend=dict(orientation="h", y=-0.2, title=None)  # Position legend below the pie chart
+                showlegend=True,
+                legend=dict(orientation="h", y=-0.2, title=None),  # Legend below the chart
+                margin=dict(t=40, b=20, l=0, r=0)  # Add margins
             )
 
+        # Display the charts side by side in Streamlit
         cols_pie = st.columns(2)
         with cols_pie[0]:
             st.plotly_chart(fig_pie_phase_1, use_container_width=True)

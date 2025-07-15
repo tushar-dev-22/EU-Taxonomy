@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from pathlib import Path
 import streamlit as st
 from dateutil.relativedelta import relativedelta
@@ -10,9 +10,12 @@ import pandas as pd
 from io import StringIO
 import plotly.express as px
 import plotly.graph_objects as go
-from datetime import timedelta
-import os
+import numpy as np
+import base64
+from PIL import Image
 import io
+import os
+
 # Page configuration
 st.set_page_config(
     page_title="EU Taxonomy",
@@ -40,15 +43,273 @@ def load_financial_model(file_path,sheet_name,header):
     else:
         raise Exception("File not supported")
 
-
-
-    
-
-
 # Define a common background color
 bg_color = "#000C66"  # Adjust this color as needed
 check_phase1 = False
 check_phase2 = False
+
+# Initialize session state variables at the start
+if 'page' not in st.session_state:
+    st.session_state.page = 'main'
+
+if 'show_eligibility' not in st.session_state:
+    st.session_state.show_eligibility = False
+
+if 'selected_phase_option' not in st.session_state:
+    st.session_state.selected_phase_option = "Select an option"
+
+# Initialize all form field states if not already present
+def init_session_state():
+    default_fields = {
+        # Phase 1 fields
+        'fcp1': datetime.now().date(),  # Set default date to today
+        'field7': datetime.now().date(),  # Set default date to today
+        'field8': 0.0,
+        'field9': None,
+        'field10': 0.0,
+        'field11': 0.0,
+        'field12': 0.0,
+        'upfp1': 0.0,
+        'cfp1': 0.0,
+        'field14': 0.0,
+        'field15': 0.0,
+        'field16': 0.0,
+        'field17': 0.0,
+        'field18': 0.0,
+        'field19': 0.0,
+        'ofwaccp1': 0.0,
+        'drcitrp1': 0.0,
+        'cgp1': 0.0,
+        'cfltp1': 0.0,
+        'ogsgp1': 0.0,
+        'ofo1': 0.0,
+        'field25': 0.0,
+        'field26': 0.0,
+        'field27': 0.0,
+        'field28': 0.0,
+        'field29': 0.0,
+        'field34': 0.0,
+        'drtp1': 0.0,
+        'cepsp1': 0.0,
+        'ces1': 0.0,
+        
+        # Phase 2 fields
+        'fcp2': datetime.now().date(),  # Set default date to today
+        'field7p2': datetime.now().date(),  # Set default date to today
+        'field8p2': 0.0,
+        'field9p2': None,
+        'field10p2': 0.0,
+        'field11p2': 0.0,
+        'field12p2': 0.0,
+        'upfp2': 0.0,
+        'cfp2': 0.0,
+        'field14p2': 0.0,
+        'field15p2': 0.0,
+        'field16p2': 0.0,
+        'field17p2': 0.0,
+        'field18p2': 0.0,
+        'field19p2': 0.0,
+        'ofwaccp2': 0.0,
+        'drcitrp2': 0.0,
+        'cgp2': 0.0,
+        'cfltp2': 0.0,
+        'ogsgp2': 0.0,
+        'ofo2': 0.0,
+        'field25p2': 0.0,
+        'field26p2': 0.0,
+        'field27p2': 0.0,
+        'field28p2': 0.0,
+        'field29p2': 0.0,
+        'field34p2': 0.0,
+        'drtp2': 0.0,
+        'cepsp2': 0.0,
+        'ces2': 0.0,
+        
+        # Other state variables
+        'answer7': 0.0,
+        'answer8': 0.0,
+        'osdp1': None,
+        'oedp1': None,
+        'drsdp1': None,
+        'dredp1': None,
+        'osdp2': None,
+        'oedp2': None,
+        'drsdp2': None,
+        'dredp2': None
+    }
+    
+    for field, default_value in default_fields.items():
+        if field not in st.session_state:
+            st.session_state[field] = default_value
+
+# Call initialization at the start
+init_session_state()
+
+# Update the answer7 input to use session state
+def handle_answer7_change():
+    st.session_state.answer7 = st.session_state.get('answer7_input', 0.0)
+
+# Update the answer8 input to use session state
+def handle_answer8_change():
+    st.session_state.answer8 = st.session_state.get('answer8_input', 0.0)
+
+# Main page form fields
+if 'field1' not in st.session_state:
+    st.session_state.field1 = ""
+# Phase 1 form fields
+if 'fcp1' not in st.session_state:
+    st.session_state.fcp1 = None
+if 'field7' not in st.session_state:
+    st.session_state.field7 = None
+if 'field8' not in st.session_state:
+    st.session_state.field8 = 0.0
+if 'field9' not in st.session_state:
+    st.session_state.field9 = None
+if 'field10' not in st.session_state:
+    st.session_state.field10 = 0.0
+if 'field11' not in st.session_state:
+    st.session_state.field11 = 0.0
+if 'field12' not in st.session_state:
+    st.session_state.field12 = 0.0
+if 'field14' not in st.session_state:
+    st.session_state.field14 = 0.0
+if 'field15' not in st.session_state:
+    st.session_state.field15 = 0.0
+if 'field16' not in st.session_state:
+    st.session_state.field16 = 0.0
+if 'field17' not in st.session_state:
+    st.session_state.field17 = 0.0
+if 'field18' not in st.session_state:
+    st.session_state.field18 = 0.0
+if 'field19' not in st.session_state:
+    st.session_state.field19 = 0.0
+if 'field25' not in st.session_state:
+    st.session_state.field25 = 0.0
+if 'field26' not in st.session_state:
+    st.session_state.field26 = 0.0
+if 'field27' not in st.session_state:
+    st.session_state.field27 = 0.0
+if 'field28' not in st.session_state:
+    st.session_state.field28 = 0.0
+if 'field29' not in st.session_state:
+    st.session_state.field29 = 0.0
+if 'field34' not in st.session_state:
+    st.session_state.field34 = 0.0
+if 'osdp1' not in st.session_state:
+    st.session_state.osdp1 = None
+if 'drsdp1' not in st.session_state:
+    st.session_state.drsdp1 = None
+if 'drtp1' not in st.session_state:
+    st.session_state.drtp1 = 0.0
+if 'dredp1' not in st.session_state:
+    st.session_state.dredp1 = None
+if 'cepsp1' not in st.session_state:
+    st.session_state.cepsp1 = 0.0
+if 'ces1' not in st.session_state:
+    st.session_state.ces1 = 0.0
+if 'upfp1' not in st.session_state:
+    st.session_state.upfp1 = 0.0
+if 'cfp1' not in st.session_state:
+    st.session_state.cfp1 = 0.0
+if 'cgp1' not in st.session_state:
+    st.session_state.cgp1 = 0.0
+if 'cfltp1' not in st.session_state:
+    st.session_state.cfltp1 = 0.0
+if 'ogsgp1' not in st.session_state:
+    st.session_state.ogsgp1 = 0.0
+if 'ofo1' not in st.session_state:
+    st.session_state.ofo1 = 0.0
+if 'ofwaccp1' not in st.session_state:
+    st.session_state.ofwaccp1 = 0.0
+if 'drcitrp1' not in st.session_state:
+    st.session_state.drcitrp1 = 0.0
+
+# Phase 2 form fields
+if 'fcp2' not in st.session_state:
+    st.session_state.fcp2 = None
+if 'field35' not in st.session_state:
+    st.session_state.field35 = None
+if 'field36' not in st.session_state:
+    st.session_state.field36 = 0.0
+if 'field37' not in st.session_state:
+    st.session_state.field37 = None
+if 'field38' not in st.session_state:
+    st.session_state.field38 = 0.0
+if 'field40' not in st.session_state:
+    st.session_state.field40 = 0.0
+if 'field42' not in st.session_state:
+    st.session_state.field42 = 0.0
+if 'field43' not in st.session_state:
+    st.session_state.field43 = 0.0
+if 'field44' not in st.session_state:
+    st.session_state.field44 = 0.0
+if 'field45' not in st.session_state:
+    st.session_state.field45 = 0.0
+if 'field46' not in st.session_state:
+    st.session_state.field46 = 0.0
+if 'field47' not in st.session_state:
+    st.session_state.field47 = 0.0
+if 'field53' not in st.session_state:
+    st.session_state.field53 = 0.0
+if 'field54' not in st.session_state:
+    st.session_state.field54 = 0.0
+if 'field58' not in st.session_state:
+    st.session_state.field58 = 0.0
+if 'field59' not in st.session_state:
+    st.session_state.field59 = 0.0
+if 'field60' not in st.session_state:
+    st.session_state.field60 = 0.0
+if 'field62' not in st.session_state:
+    st.session_state.field62 = 0.0
+if 'field69' not in st.session_state:
+    st.session_state.field69 = 0.0
+if 'osdp2' not in st.session_state:
+    st.session_state.osdp2 = None
+if 'drsdp2' not in st.session_state:
+    st.session_state.drsdp2 = None
+if 'drtp2' not in st.session_state:
+    st.session_state.drtp2 = 0.0
+if 'dredp2' not in st.session_state:
+    st.session_state.dredp2 = None
+if 'cepsp2' not in st.session_state:
+    st.session_state.cepsp2 = 0.0
+if 'ces2' not in st.session_state:
+    st.session_state.ces2 = 0.0
+if 'upfp2' not in st.session_state:
+    st.session_state.upfp2 = 0.0
+if 'cfp2' not in st.session_state:
+    st.session_state.cfp2 = 0.0
+if 'cgp2' not in st.session_state:
+    st.session_state.cgp2 = 0.0
+if 'cfltp2' not in st.session_state:
+    st.session_state.cfltp2 = 0.0
+if 'ogsgp2' not in st.session_state:
+    st.session_state.ogsgp2 = 0.0
+if 'ofo2' not in st.session_state:
+    st.session_state.ofo2 = 0.0
+if 'ofwaccp2' not in st.session_state:
+    st.session_state.ofwaccp2 = 0.0
+if 'drcitrp2' not in st.session_state:
+    st.session_state.drcitrp2 = 0.0
+
+# Risk assessment data
+if 'risk_assessment_df' not in st.session_state:
+    st.session_state.risk_assessment_df = None
+if 'selected_risks' not in st.session_state:
+    st.session_state.selected_risks = ["Select a risk"] * 18
+
+# Main page form fields
+if 'field1' not in st.session_state:
+    st.session_state.field1 = ""
+if 'field2' not in st.session_state:
+    st.session_state.field2 = ""
+if 'field3' not in st.session_state:
+    st.session_state.field3 = ""
+if 'field4' not in st.session_state:
+    st.session_state.field4 = ""
+if 'field5' not in st.session_state:
+    st.session_state.field5 = ""
+
 # CSS style for larger font size
 if 'field1' not in st.session_state:
     st.session_state.field1 = ""
@@ -163,8 +424,12 @@ st.markdown(
 if 'show_eligibility' not in st.session_state:
         st.session_state.show_eligibility = False
 
-if 'page' not in st.session_state:
+def go_back_to_main_page():
     st.session_state.page = 'main'
+    st.session_state.show_eligibility = False
+
+def go_back_to_phase():
+    st.session_state.page = 'phase'
 
 def continue_to_phase():
     st.session_state.page = 'phase'
@@ -178,9 +443,6 @@ def continue_to_risk_management():
 def continue_to_dashboard():
     st.session_state.page = 'dashboard'
     
-# def go_back_to_main_page():
-#     st.session_state.page = 'main'
-    # st.session_state.show_eligibility = False
 # Sidebar for input fields and logos
 if st.session_state.page == 'main':
 
@@ -354,7 +616,7 @@ if st.session_state.page == 'main':
                         '<span class="tooltiptext">Should be greater than or equal to 20</span>'
                         '</button>'
                         '</div>', unsafe_allow_html=True)
-                    answer6 = st.number_input('Enter your response (kWh/m3)', min_value=0.0, max_value=100.0, step=0.01,label_visibility='collapsed')
+                    answer6 = st.number_input('Enter your response (kWh/m3)', min_value=20.0, max_value=100.0, step=0.01,label_visibility='collapsed')
 
                     answer7 = ""
                     st.markdown(
@@ -364,7 +626,7 @@ if st.session_state.page == 'main':
                         '<span class="tooltiptext">Should be greater than or equal to 20</span>'
                         '</button>'
                         '</div>', unsafe_allow_html=True)
-                    answer7 = st.number_input('Enter your response (kWh/m3)1', min_value=0.0, max_value=100.0, step=0.01,label_visibility='collapsed')
+                    answer7 = st.number_input('Enter your response (kWh/m3)1', min_value=20.0, max_value=100.0, step=0.01,label_visibility='collapsed')
             #2B
             if (answer2 == "Yes" and (answer5 < 1.5 and answer4 < 0.5) and (answer5 != 0.0 and answer4 != 0.0)) or (answer3 == "Yes"  and (answer6 >= 20 and answer7 >= 20)):
                 with col2:
@@ -375,7 +637,7 @@ if st.session_state.page == 'main':
                         '<span class="tooltiptext">Should be less than 1080</span>'
                         '</button>'
                         '</div>', unsafe_allow_html=True)
-                    answer8 = st.number_input('Enter your response (gCO2e/m3)', min_value=0.0, step=0.01,label_visibility='collapsed')
+                    answer8 = st.number_input('Enter your response (gCO2e/m3)', min_value=0.0,max_value=1080.0, step=0.01,label_visibility='collapsed')
 
                     st.markdown(
                         f'<div style="background-color: {bg_color}; color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; width: 100%;" class="big-font">'
@@ -567,14 +829,12 @@ if st.session_state.page == 'main':
 #Make changes for the next page here
 elif st.session_state.page == 'phase':
 
-        
-
     df = load_financial_model(file_path,sheet_name='Inp_C',header=3)
 
     df_cleaned = df[df.notna().any(axis=1)]
 
     df_cleaned = df_cleaned.drop([1,3,5,8,13,18,23,29,31,35,38,41,46,48,54,56,62,70,72,77,83])
-
+    df_cleaned = pd.DataFrame(df_cleaned)
     df_cleaned['Unit'] = df_cleaned['Unit'].fillna(0)
     df_cleaned['Unnamed: 4'] = df_cleaned['Unnamed: 4'].fillna(0)
     df_cleaned['Phase_1'] = df_cleaned['Phase_1'].fillna(0)
@@ -589,21 +849,62 @@ elif st.session_state.page == 'phase':
 
     # st.write(df_cleaned,"after changes dataframe")
 
-    def custom_number_input(label, key, placeholder,value=0.0):
-        return st.number_input(label, key=key, step=0.01,value=value,placeholder=placeholder)
+    def custom_number_input(label, key, placeholder, value=0.0):
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", value)
+        
+        return st.number_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            step=0.01,
+            on_change=handle_change,
+            placeholder=placeholder
+        )
     
-    def custom_percentage_input(label, key, placeholder,value=0.0):
-        return st.number_input(label, key=key, step=0.01,max_value=100.0,value=value,placeholder=placeholder)
+    def custom_percentage_input(label, key, placeholder, value=0.0):
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", value)
+        
+        return st.number_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            step=0.01,
+            max_value=100.0,
+            on_change=handle_change,
+            placeholder=placeholder
+        )
 
     def custom_text_input(label, key, placeholder):
-        return st.text_input(label, key=key, placeholder=placeholder)
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", "")
+        
+        return st.text_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            on_change=handle_change,
+            placeholder=placeholder
+        )
     
     def format_date(date):
         """Format date to dd/mm/yy."""
         return date.strftime('%d/%m/%Y')
     
     def custom_date_input(label, key):
-        return st.date_input(label, key=key)
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", datetime.now().date())
+        
+        if key not in st.session_state:
+            st.session_state[key] = datetime.now().date()
+        
+        return st.date_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            on_change=handle_change
+        )
     
 
     def calculate_future_date_months(date, months):
@@ -626,76 +927,112 @@ elif st.session_state.page == 'phase':
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 15px; margin-bottom: 15px; width: 100%; text-align: center; font-size: 54px; margin-top: -50px;" class="center-text">'
         '<strong>FINANCIAL ASSESSMENT</strong>'
         '</div>', unsafe_allow_html=True)
-    options = ["Select an option","1", "2"]
-    st.session_state.field100 = st.selectbox("Is your project a one phase or two phase project?", options, key='100')
-    if st.session_state.field100 == "1":
+    
+    # Only show phase selection if it hasn't been selected yet
+    if st.session_state.selected_phase_option == "Select an option":
+        options = ["Select an option", "1", "2"]
+        selected = st.selectbox(
+            "Is your project a one phase or two phase project?", 
+            options, 
+            key='100'
+        )
+        # Update the session state immediately after selection
+        if selected != "Select an option":
+            st.session_state.selected_phase_option = selected
+            st.rerun()  # Rerun to update the UI immediately
+    
+    if st.session_state.selected_phase_option == "1":
         check_phase1 = True
         check_phase2 = False
-    if st.session_state.field100 == "2":
+    elif st.session_state.selected_phase_option == "2":
         check_phase1 = True
         check_phase2 = True
+    else:
+        check_phase1 = False
+        check_phase2 = False
+
     if check_phase1:
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown(
             f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 15px; margin-bottom: 15px; width: 80%; text-align: center; font-size: 36px; margin-top: -50px;" class="center-text">'
             '<strong>Phase 1</strong>'
             '</div>', unsafe_allow_html=True)
-        st.session_state.fcp1 = custom_date_input("Financial Close - Phase 1", 'fcp1key')
-        st.session_state.field7 = custom_date_input("Construction Start Date - Phase 1", '7')
-        st.session_state.field8 = custom_number_input("Construction Period(in months) - Phase 1", '8', "Enter")
-        if st.session_state.field8 != 0:    
-            st.session_state.field9 = st.write("Construction End Date: - Phase 1", calculate_future_date_months(st.session_state.field7,st.session_state.field8)) # TBC
-            st.session_state.field9 = calculate_future_date_months(st.session_state.field7,st.session_state.field8)
-        if st.session_state.field8 != 0:
-            st.session_state.field9 = calculate_future_date_months(st.session_state.field7, st.session_state.field8)
-            operations_start_date = st.session_state.field9 + timedelta(days=1)
+        
+        # Use unique keys for each input to avoid conflicts
+        fcp1 = custom_date_input("Financial Close - Phase 1", 'fcp1')
+        field7 = custom_date_input("Construction Start Date - Phase 1", 'field7')
+        field8 = custom_number_input("Construction Period(in months) - Phase 1", 'field8', "Enter", st.session_state.field8)
+        
+        if field8 != 0:    
+            construction_end_date = calculate_future_date_months(field7, field8)
+            st.write("Construction End Date: - Phase 1", construction_end_date)
+            st.session_state.field9 = construction_end_date
+            
+            operations_start_date = construction_end_date + timedelta(days=1)
             st.session_state.osdp1 = operations_start_date
-            st.write("Operations Start Date - Phase 1:", st.session_state.osdp1)        
-        st.session_state.field10 = custom_number_input("Operations Period(in Years) - Phase 1", '10', "Enter")
-        if st.session_state.field10 != 0:
-            st.session_state.oedp1 = st.write("Operations End Date: - Phase 1", calculate_future_date_years(st.session_state.osdp1,st.session_state.field10)) # TBC
-            st.session_state.oedp1 = calculate_future_date_years(st.session_state.osdp1,st.session_state.field10)
-        if st.session_state.osdp1 != 0: 
-            st.session_state.drsdp1 =  st.session_state.osdp1
+            st.write("Operations Start Date - Phase 1:", operations_start_date)
+        
+        field10 = custom_number_input("Operations Period(in Years) - Phase 1", 'field10', "Enter", st.session_state.field10)
+        
+        if field10 != 0 and st.session_state.osdp1:
+            operations_end_date = calculate_future_date_years(st.session_state.osdp1, field10)
+            st.write("Operations End Date: - Phase 1", operations_end_date)
+            st.session_state.oedp1 = operations_end_date
+        
+        if st.session_state.osdp1:
+            st.session_state.drsdp1 = st.session_state.osdp1
             st.write("Debt Repayment Start Date - Phase 1:", st.session_state.drsdp1)
-        st.session_state.drtp1 = custom_number_input("Debt Repayment Tenor(in Years) - Phase 1", 'drtp1key', "Enter")
-        if st.session_state.drtp1 != 0:
-            st.session_state.dredp1 = st.write("Debt Repayment End Date: - Phase 1", calculate_future_date_years(st.session_state.drsdp1,st.session_state.drtp1)) # TBC
-            st.session_state.dredp1 = calculate_future_date_years(st.session_state.drsdp1,st.session_state.drtp1)
-        st.session_state.cepsp1 = custom_number_input("Capital Expenditure - Pre sensitivity(in LE’000 or $’000) - Phase 1", 'cepsp1key', "Enter")
-        st.session_state.ces1 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 1", 'cesp1key', "Enter")
-        if st.session_state.cepsp1 != 0 and st.session_state.ces1 != 0:
-                post_sensitivity_value = st.session_state.cepsp1 * (st.session_state.ces1 / 100)
-                st.write("Calculated Capital Expenditure - Post Sensitivity (in LE’000 or $’000):", post_sensitivity_value)
-                st.session_state.field11 = post_sensitivity_value
-        st.session_state.field12 = custom_percentage_input("Debt (%) - Phase 1", '12', "Enter")
-        if st.session_state.field12 != 0:
-            equity_percentage = 1 - (st.session_state.field12 / 100)
+        
+        drtp1 = custom_number_input("Debt Repayment Tenor(in Years) - Phase 1", 'drtp1', "Enter", st.session_state.drtp1)
+        
+        if drtp1 != 0 and st.session_state.drsdp1:
+            debt_repayment_end_date = calculate_future_date_years(st.session_state.drsdp1, drtp1)
+            st.write("Debt Repayment End Date: - Phase 1", debt_repayment_end_date)
+            st.session_state.dredp1 = debt_repayment_end_date
+        
+        cepsp1 = custom_number_input("Capital Expenditure - Pre sensitivity(in LE'000 or $'000) - Phase 1", 'cepsp1', "Enter", st.session_state.cepsp1)
+        ces1 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 1", 'ces1', "Enter", st.session_state.ces1)
+        
+        if cepsp1 != 0 and ces1 != 0:
+            post_sensitivity_value = cepsp1 * (ces1 / 100)
+            st.write("Calculated Capital Expenditure - Post Sensitivity (in LE'000 or $'000):", post_sensitivity_value)
+            st.session_state.field11 = post_sensitivity_value
+        
+        field12 = custom_percentage_input("Debt (%) - Phase 1", 'field12', "Enter", st.session_state.field12)
+        
+        if field12 != 0:
+            equity_percentage = 1 - (field12 / 100)
             round_equity = round(equity_percentage * 100)
-            st.write("Equity (%): ",round_equity)
+            st.write("Equity (%): ", round_equity)
             st.session_state.cep1 = round_equity
-        # st.session_state.field13 = custom_percentage_input("Equity (%) - Phase 1", '13', "Enter")
-        st.session_state.upfp1 = custom_number_input("Upfront Fees (%) - Phase 1", 'upfp1key', "Enter")
-        st.session_state.cfp1 = custom_number_input("Commitment Fees (%) - Phase 1", 'cfp1key', "Enter")
-        st.session_state.field14 = custom_percentage_input("Construction Interest Rate (Base Rate %) - Phase 1", '14', "Enter") 
-        st.session_state.field15 = custom_percentage_input("Construction Interest Rate (Margin Spread %) - Phase 1",'15', "Enter")
-        if st.session_state.field14 != 0 and st.session_state.field15 != 0:
-            st.write("All in Rate (%)", st.session_state.field14 + st.session_state.field15) 
-            st.session_state.field16 = st.session_state.field14 + st.session_state.field15
-        st.session_state.field17 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 1",'17', "Enter")
-        st.session_state.field18 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 1",'18', "Enter")
-        if st.session_state.field17 != 0 and st.session_state.field18 != 0:
-            st.write("All in Rate (%) - Phase 1", st.session_state.field17 + st.session_state.field18) 
-            st.session_state.field19 = st.session_state.field17 + st.session_state.field18
-        st.session_state.ofwaccp1 = custom_percentage_input("Offtake - WACC (%) - Phase 1" , "ofwaccp1key" , "Enter")
-        st.session_state.drcitrp1 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 1","citrp1key" ,"Enter")
-
+        
+        upfp1 = custom_number_input("Upfront Fees (%) - Phase 1", 'upfp1', "Enter", st.session_state.upfp1)
+        cfp1 = custom_number_input("Commitment Fees (%) - Phase 1", 'cfp1', "Enter", st.session_state.cfp1)
+        field14 = custom_percentage_input("Construction Interest Rate (Base Rate %) - Phase 1", 'field14', "Enter", st.session_state.field14)
+        field15 = custom_percentage_input("Construction Interest Rate (Margin Spread %) - Phase 1", 'field15', "Enter", st.session_state.field15)
+        
+        if field14 != 0 and field15 != 0:
+            all_in_rate = field14 + field15
+            st.write("All in Rate (%)", all_in_rate)
+            st.session_state.field16 = all_in_rate
+        
+        field17 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 1", 'field17', "Enter", st.session_state.field17)
+        field18 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 1", 'field18', "Enter", st.session_state.field18)
+        
+        if field17 != 0 and field18 != 0:
+            all_in_rate_ops = field17 + field18
+            st.write("All in Rate (%) - Phase 1", all_in_rate_ops)
+            st.session_state.field19 = all_in_rate_ops
+        
+        ofwaccp1 = custom_percentage_input("Offtake - WACC (%) - Phase 1", "ofwaccp1", "Enter", st.session_state.ofwaccp1)
+        drcitrp1 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 1", "drcitrp1", "Enter", st.session_state.drcitrp1)
 
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown(
             f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 15px; margin-bottom: 15px; width: 80%; text-align: center; font-size: 36px; margin-top: -50px;" class="center-text">'
             '<strong>Phase 1</strong>'
             '</div>', unsafe_allow_html=True)
+        
         col1, col2 = st.columns((1, 1))
         with col1:
             st.markdown(
@@ -704,26 +1041,30 @@ elif st.session_state.page == 'phase':
                 '</div>',
                 unsafe_allow_html=True
             )
-            st.session_state.cgp1 = custom_number_input("Chlorine Gas (in LE’000 or $’000) - Phase 1",'cgp1key', "Enter", 0.0)
-            st.session_state.cfltp1 = custom_number_input("Chemical for laboratory test (in LE’000 or $’000) - Phase 1",'cfltp1key', "Enter", 0.0)
-            st.session_state.ogsgp1 = custom_number_input("Fuel (Oil, Gas, Solar and Gasoline (in LE’000 or $’000) - Phase 1",'ogsgp1key', "Enter", 0.0)
-            st.session_state.ofo1 = custom_number_input("Other Fixed Opex (in LE’000 or $’000)  - Phase 1",'ofo1key', "Enter", 0.0)
+            cgp1 = custom_number_input("Chlorine Gas (in LE'000 or $'000) - Phase 1", 'cgp1', "Enter", st.session_state.cgp1)
+            cfltp1 = custom_number_input("Chemical for laboratory test (in LE'000 or $'000) - Phase 1", 'cfltp1', "Enter", st.session_state.cfltp1)
+            ogsgp1 = custom_number_input("Fuel (Oil, Gas, Solar and Gasoline (in LE'000 or $'000) - Phase 1", 'ogsgp1', "Enter", st.session_state.ogsgp1)
+            ofo1 = custom_number_input("Other Fixed Opex (in LE'000 or $'000) - Phase 1", 'ofo1', "Enter", st.session_state.ofo1)
+        
         with col2:
-
             st.markdown(
                 '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
                 'Variable Operating Costs Per Year - Phase 1'
                 '</div>',
                 unsafe_allow_html=True
             )
-            st.session_state.field25 = custom_number_input("Labor (in LE’000 or $’000) - Phase 1", '25',"Enter")
-            st.session_state.field26 = custom_number_input("Spare Part Cost  (in LE’000 or $’000) - Phase 1", '32',"Enter")
-            st.session_state.field27 = custom_number_input("Energy Costs (LE or $/Kw) - Phase 1", '31',"Enter")
-            st.session_state.field28 = custom_number_input("Energy Consumption (KW/m³) - Phase 1", '30',"Enter")
-            if st.session_state.field27 != 0 and st.session_state.field28 != 0:
-                st.write("Effective Price- Energy Costs (LE/m³) - Phase 1",st.session_state.field27*st.session_state.field28)
-                st.session_state.field29 = st.session_state.field27*st.session_state.field28
-            st.session_state.field34 = custom_number_input("Maintenance Costs (in LE’000 or $’000) - Phase 1", '26',"Enter")
+            field25 = custom_number_input("Labor (in LE'000 or $'000) - Phase 1", 'field25', "Enter", st.session_state.field25)
+            field26 = custom_number_input("Spare Part Cost (in LE'000 or $'000) - Phase 1", 'field26', "Enter", st.session_state.field26)
+            field27 = custom_number_input("Energy Costs (LE or $/Kw) - Phase 1", 'field27', "Enter", st.session_state.field27)
+            field28 = custom_number_input("Energy Consumption (KW/m³) - Phase 1", 'field28', "Enter", st.session_state.field28)
+            
+            if field27 != 0 and field28 != 0:
+                effective_price = field27 * field28
+                st.write("Effective Price- Energy Costs (LE/m³) - Phase 1", effective_price)
+                st.session_state.field29 = effective_price
+            
+            field34 = custom_number_input("Maintenance Costs (in LE'000 or $'000) - Phase 1", 'field34', "Enter", st.session_state.field34)
+
         if check_phase1 and not check_phase2:
             st.button("Continue to Risk Management", on_click=continue_to_risk_management,key='cont1')
         if check_phase2:
@@ -750,24 +1091,24 @@ elif st.session_state.page == 'phase':
         # if 'drsdp1' not in st.session_state:
         #      st.session_state.drsdp1 = None
 
-        if st.session_state.fcp1:
+        if fcp1:
             # Store the new date input into the DataFrame
-            df_cleaned.at[6, 'Phase_1'] = st.session_state.fcp1
+            df_cleaned.at[6, 'Phase_1'] = fcp1
 
-        if st.session_state.field7:
-            df_cleaned.at[9, 'Phase_1'] = st.session_state.field7
+        if field7:
+            df_cleaned.at[9, 'Phase_1'] = field7
 
-        if st.session_state.field8:
-            df_cleaned.at[10, 'Phase_1'] = (st.session_state.field8)
+        if field8:
+            df_cleaned.at[10, 'Phase_1'] = field8
 
-        # if st.session_state.field9:
-        #     df_cleaned.at[11, 'Phase_1'] = st.session_state.field9
+        # if field9:
+        #     df_cleaned.at[11, 'Phase_1'] = field9
 
         # if getattr(st.session_state, 'osdp1', None):
         #     df_cleaned.at[14, 'Phase_1'] = st.session_state.osdp1
 
-        if st.session_state.field10:
-            df_cleaned.at[15, 'Phase_1'] = st.session_state.field10
+        if field10:
+            df_cleaned.at[15, 'Phase_1'] = field10
 
         # if getattr(st.session_state, 'oedp1', None):
         #     df_cleaned.at[16, 'Phase_1'] = st.session_state.oedp1
@@ -775,83 +1116,83 @@ elif st.session_state.page == 'phase':
         # if getattr(st.session_state, 'drsdp1', None):
         #     df_cleaned.at[19, 'Phase_1'] = st.session_state.drsdp1
 
-        if st.session_state.drtp1:
-            df_cleaned.at[20, 'Phase_1'] = st.session_state.drtp1
+        if drtp1:
+            df_cleaned.at[20, 'Phase_1'] = drtp1
 
         # if getattr(st.session_state, 'dredp1', None):
         #     df_cleaned.at[21, 'Phase_1'] = st.session_state.dredp1
 
-        if st.session_state.cepsp1:
-            df_cleaned.at[25, 'Phase_1'] = st.session_state.cepsp1
+        if cepsp1:
+            df_cleaned.at[25, 'Phase_1'] = cepsp1
 
-        if st.session_state.ces1:
-            df_cleaned.at[26, 'Phase_1'] = st.session_state.ces1
+        if ces1:
+            df_cleaned.at[26, 'Phase_1'] = ces1
             
         # if st.session_state.field11:
         #     df_cleaned.at[27, 'Phase_1'] = st.session_state.field11
 
-        if st.session_state.field12:
-            df_cleaned.at[32, 'Phase_1'] = st.session_state.field12
+        if field12:
+            df_cleaned.at[32, 'Phase_1'] = field12
 
         # if getattr(st.session_state, 'cep1', None):
         #     df_cleaned.at[33, 'Phase_1'] = st.session_state.cep1
 
-        if st.session_state.upfp1:
-            df_cleaned.at[36, 'Phase_1'] = st.session_state.upfp1
+        if upfp1:
+            df_cleaned.at[36, 'Phase_1'] = upfp1
 
-        if st.session_state.cfp1:
-            df_cleaned.at[39, 'Phase_1'] = st.session_state.cfp1
+        if cfp1:
+            df_cleaned.at[39, 'Phase_1'] = cfp1
 
-        if st.session_state.field14:
-            df_cleaned.at[42, 'Phase_1'] = st.session_state.field14
+        if field14:
+            df_cleaned.at[42, 'Phase_1'] = field14
 
-        if st.session_state.field15:
-            df_cleaned.at[43, 'Phase_1'] = st.session_state.field15
+        if field15:
+            df_cleaned.at[43, 'Phase_1'] = field15
 
-        if st.session_state.cgp1:
-            df_cleaned.at[57, 'Phase_1'] = st.session_state.cgp1
+        if cgp1:
+            df_cleaned.at[57, 'Phase_1'] = cgp1
 
-        if st.session_state.cfltp1:
-            df_cleaned.at[58, 'Phase_1'] = st.session_state.cfltp1
+        if cfltp1:
+            df_cleaned.at[58, 'Phase_1'] = cfltp1
 
-        if st.session_state.ogsgp1:
-            df_cleaned.at[59, 'Phase_1'] = st.session_state.ogsgp1
+        if ogsgp1:
+            df_cleaned.at[59, 'Phase_1'] = ogsgp1
 
-        if st.session_state.ofo1:
-            df_cleaned.at[60, 'Phase_1'] = st.session_state.ofo1
+        if ofo1:
+            df_cleaned.at[60, 'Phase_1'] = ofo1
 
-        if st.session_state.field25:
-            df_cleaned.at[63, 'Phase_1'] = st.session_state.field25
+        if field25:
+            df_cleaned.at[63, 'Phase_1'] = field25
 
-        if st.session_state.field26:
-            df_cleaned.at[64, 'Phase_1'] = st.session_state.field26
+        if field26:
+            df_cleaned.at[64, 'Phase_1'] = field26
 
-        if st.session_state.field27:
-            df_cleaned.at[65, 'Phase_1'] = st.session_state.field27
+        if field27:
+            df_cleaned.at[65, 'Phase_1'] = field27
 
-        if st.session_state.field28:
-            df_cleaned.at[66, 'Phase_1'] = st.session_state.field28
+        if field28:
+            df_cleaned.at[66, 'Phase_1'] = field28
 
         # if getattr(st.session_state, 'field29', None):
         #     df_cleaned.at[67, 'Phase_1'] = st.session_state.field29
 
-        if st.session_state.field34:
-            df_cleaned.at[68, 'Phase_1'] = st.session_state.field34
+        if field34:
+            df_cleaned.at[68, 'Phase_1'] = field34
 
-        if st.session_state.field17:
-            df_cleaned.at[73, 'Phase_1'] = st.session_state.field17
+        if field17:
+            df_cleaned.at[73, 'Phase_1'] = field17
 
-        if st.session_state.field18:
-            df_cleaned.at[74, 'Phase_1'] = st.session_state.field18
+        if field18:
+            df_cleaned.at[74, 'Phase_1'] = field18
 
         # if st.session_state.field19:
         #     df_cleaned.at[75, 'Phase_1'] = st.session_state.field19
 
-        if st.session_state.ofwaccp1:
-            df_cleaned.at[79, 'Phase_1'] = st.session_state.ofwaccp1
+        if ofwaccp1:
+            df_cleaned.at[79, 'Phase_1'] = ofwaccp1
 
-        if st.session_state.drcitrp1:
-            df_cleaned.at[81, 'Phase_1'] = st.session_state.drcitrp1
+        if drcitrp1:
+            df_cleaned.at[81, 'Phase_1'] = drcitrp1
 
 
         # st.write(df_cleaned,'----------------updating')
@@ -934,17 +1275,58 @@ elif st.session_state.page == 'phase2':
     else:
         st.write("Phase 1 data is not available. Please update Phase 1 first.")
 
-    def custom_number_input(label, key, placeholder,value=0.0):
-        return st.number_input(label, key=key, step=0.01,value=value,placeholder=placeholder)
+    def custom_number_input(label, key, placeholder, value=0.0):
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", value)
+        
+        return st.number_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            step=0.01,
+            on_change=handle_change,
+            placeholder=placeholder
+        )
     
-    def custom_percentage_input(label, key, placeholder,value=0.0):
-        return st.number_input(label, key=key, step=0.01,max_value=100.0,value=value,placeholder=placeholder)
+    def custom_percentage_input(label, key, placeholder, value=0.0):
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", value)
+        
+        return st.number_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            step=0.01,
+            max_value=100.0,
+            on_change=handle_change,
+            placeholder=placeholder
+        )
 
     def custom_text_input(label, key, placeholder):
-        return st.text_input(label, key=key, placeholder=placeholder)
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", "")
+        
+        return st.text_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            on_change=handle_change,
+            placeholder=placeholder
+        )
     
     def custom_date_input(label, key):
-        return st.date_input(label, key=key)
+        def handle_change():
+            st.session_state[key] = st.session_state.get(f"{key}_input", datetime.now().date())
+        
+        if key not in st.session_state:
+            st.session_state[key] = datetime.now().date()
+        
+        return st.date_input(
+            label,
+            key=f"{key}_input",
+            value=st.session_state[key],
+            on_change=handle_change
+        )
     
     def calculate_future_date_months(date, months):
         whole_months = int(months)
@@ -971,62 +1353,81 @@ elif st.session_state.page == 'phase2':
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 15px; margin-bottom: 15px; width: 80%; text-align: center; font-size: 36px; margin-top: -50px;" class="center-text">'
         '<strong>Phase 2</strong>'
         '</div>', unsafe_allow_html=True)
-    st.session_state.fcp2 = custom_date_input("Financial Close - Phase 2", 'fcp2key')
-    st.session_state.field35 = custom_date_input("Construction Start Date - Phase 2", '35')
-    st.session_state.field36 = custom_number_input("Construction Period(in months) - Phase 2", '36', "Enter",0.0)
-    if st.session_state.field36 != 0:
-        st.write("Construction End Date:", calculate_future_date_months(st.session_state.field35,st.session_state.field36)) # TBC
-        st.session_state.field37 = calculate_future_date_months(st.session_state.field35,st.session_state.field36)
-
-    if st.session_state.field36 != 0:
-        st.session_state.field37 = calculate_future_date_months(st.session_state.field35, st.session_state.field36)
-        operations_start_date = st.session_state.field37 + timedelta(days=1)
+    
+    fcp2 = custom_date_input("Financial Close - Phase 2", 'fcp2')
+    field7p2 = custom_date_input("Construction Start Date - Phase 2", 'field7p2')
+    field8p2 = custom_number_input("Construction Period(in months) - Phase 2", 'field8p2', "Enter", st.session_state.field8p2)
+    
+    if field8p2 != 0:    
+        construction_end_date = calculate_future_date_months(field7p2, field8p2)
+        st.write("Construction End Date: - Phase 2", construction_end_date)
+        st.session_state.field9p2 = construction_end_date
+        
+        operations_start_date = construction_end_date + timedelta(days=1)
         st.session_state.osdp2 = operations_start_date
-        st.write("Operations Start Date - Phase 2:", st.session_state.osdp2)    
-    # st.session_state.osdp2 = custom_date_input("Operations Start Date - Phase 2", 'osdp2key')
-    st.session_state.field38 = custom_number_input("Operations Period(in Years) - Phase 2", '38', "Enter",0.0)
-    if st.session_state.field38 != 0:
-        st.session_state.oedp2 = st.write("Operations End Date: - Phase 2", calculate_future_date_years(st.session_state.osdp2,st.session_state.field38)) # TBC
-        st.session_state.oedp2 = calculate_future_date_years(st.session_state.osdp2,st.session_state.field38)
-    if st.session_state.osdp2 != 0: 
-        st.session_state.drsdp2 =  st.session_state.osdp2
+        st.write("Operations Start Date - Phase 2:", operations_start_date)
+    
+    field10p2 = custom_number_input("Operations Period(in Years) - Phase 2", 'field10p2', "Enter", st.session_state.field10p2)
+    
+    if field10p2 != 0 and st.session_state.osdp2:
+        operations_end_date = calculate_future_date_years(st.session_state.osdp2, field10p2)
+        st.write("Operations End Date: - Phase 2", operations_end_date)
+        st.session_state.oedp2 = operations_end_date
+    
+    if st.session_state.osdp2:
+        st.session_state.drsdp2 = st.session_state.osdp2
         st.write("Debt Repayment Start Date - Phase 2:", st.session_state.drsdp2)
-    # st.session_state.drsdp2 = custom_date_input("Debt Repayment Start Date - Phase 2", 'drsdp2key')
-    st.session_state.drtp2 = custom_number_input("Debt Repayment Tenor(in Years) - Phase 2", 'drtp2key', "Enter")
-    if st.session_state.drtp2 != 0:
-        st.session_state.dredp2 = st.write("Debt Repayment End Date: - Phase 2", calculate_future_date_years(st.session_state.drsdp2,st.session_state.drtp2)) # TBC
-        st.session_state.dredp2 = calculate_future_date_years(st.session_state.drsdp2,st.session_state.drtp2)
-    st.session_state.cepsp2 = custom_number_input("Capital Expenditure - Pre sensitivity (in LE’000 or $’000) - Phase 2", 'cepsp1key', "Enter")
-    st.session_state.ces2 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 2", 'cesp1key', "Enter")
-    if st.session_state.cepsp2 != 0 and st.session_state.ces2 != 0:
-            post_sensitivity_value = st.session_state.cepsp2 * (st.session_state.ces2 / 100)
-            st.write("Calculated Capital Expenditure - Post Sensitivity (in LE’000 or $’000):", post_sensitivity_value)
-            st.session_state.field69 = post_sensitivity_value
-    st.session_state.field40 = custom_percentage_input("Debt (%) - Phase 2", '40', "Enter",0.0) 
-    if st.session_state.field40 != 0:
-        equity_percentage = 1 - (st.session_state.field40 / 100)
+    
+    drtp2 = custom_number_input("Debt Repayment Tenor(in Years) - Phase 2", 'drtp2', "Enter", st.session_state.drtp2)
+    
+    if drtp2 != 0 and st.session_state.drsdp2:
+        debt_repayment_end_date = calculate_future_date_years(st.session_state.drsdp2, drtp2)
+        st.write("Debt Repayment End Date: - Phase 2", debt_repayment_end_date)
+        st.session_state.dredp2 = debt_repayment_end_date
+    
+    cepsp2 = custom_number_input("Capital Expenditure - Pre sensitivity(in LE'000 or $'000) - Phase 2", 'cepsp2', "Enter", st.session_state.cepsp2)
+    ces2 = custom_percentage_input("Capital Expenditure - Sensitivity (%) - Phase 2", 'ces2', "Enter", st.session_state.ces2)
+    
+    if cepsp2 != 0 and ces2 != 0:
+        post_sensitivity_value = cepsp2 * (ces2 / 100)
+        st.write("Calculated Capital Expenditure - Post Sensitivity (in LE'000 or $'000):", post_sensitivity_value)
+        st.session_state.field11p2 = post_sensitivity_value
+    
+    field12p2 = custom_percentage_input("Debt (%) - Phase 2", 'field12p2', "Enter", st.session_state.field12p2)
+    
+    if field12p2 != 0:
+        equity_percentage = 1 - (field12p2 / 100)
         round_equity = round(equity_percentage * 100)
-        st.write("Equity (%): ",round_equity)
+        st.write("Equity (%): ", round_equity)
         st.session_state.cep2 = round_equity
-    st.session_state.upfp2 = custom_number_input("Upfront Fees (%) - Phase 2", 'upfp1key', "Enter")
-    st.session_state.cfp2 = custom_number_input("Commitment Fees (%) - Phase 2", 'cfp1key', "Enter")
-    st.session_state.field42 = custom_percentage_input("Construction Interest Rate (Base Rate %) - Phase 2", '42', "Enter",0.0) 
-    st.session_state.field43 = custom_percentage_input("Construction Interest Rate (Margin Spread %) - Phase 2",'43', "Enter",0.0)
-    if st.session_state.field42 != 0 and st.session_state.field43 != 0:
-        st.write("All in Rate (%) - Phase 2", st.session_state.field42 + st.session_state.field43) # TBC
-        st.session_state.field44 = st.session_state.field42 + st.session_state.field43
-    st.session_state.field45 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 2",'45', "Enter",0.0)
-    st.session_state.field46 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 2",'46', "Enter",0.0)
-    if st.session_state.field45 != 0 and st.session_state.field46 != 0:
-        st.write("All in Rate (%) - Phase 2", st.session_state.field45 + st.session_state.field46) # TBC
-        st.session_state.field47 = st.session_state.field45 + st.session_state.field46
-    st.session_state.ofwaccp2 = custom_percentage_input("Offtake - WACC (%) - Phase 2" , "ofwaccp2key" , "Enter")
-    st.session_state.drcitrp2 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 2","citrp2key" ,"Enter")
+    
+    upfp2 = custom_number_input("Upfront Fees (%) - Phase 2", 'upfp2', "Enter", st.session_state.upfp2)
+    cfp2 = custom_number_input("Commitment Fees (%) - Phase 2", 'cfp2', "Enter", st.session_state.cfp2)
+    field14p2 = custom_percentage_input("Construction Interest Rate (Base Rate %) - Phase 2", 'field14p2', "Enter", st.session_state.field14p2)
+    field15p2 = custom_percentage_input("Construction Interest Rate (Margin Spread %) - Phase 2", 'field15p2', "Enter", st.session_state.field15p2)
+    
+    if field14p2 != 0 and field15p2 != 0:
+        all_in_rate = field14p2 + field15p2
+        st.write("All in Rate (%)", all_in_rate)
+        st.session_state.field16p2 = all_in_rate
+    
+    field17p2 = custom_percentage_input("Operations Interest Rate (Base Rate %) - Phase 2", 'field17p2', "Enter", st.session_state.field17p2)
+    field18p2 = custom_percentage_input("Operations Interest Rate (Margin Spread %) - Phase 2", 'field18p2', "Enter", st.session_state.field18p2)
+    
+    if field17p2 != 0 and field18p2 != 0:
+        all_in_rate_ops = field17p2 + field18p2
+        st.write("All in Rate (%) - Phase 2", all_in_rate_ops)
+        st.session_state.field19p2 = all_in_rate_ops
+    
+    ofwaccp2 = custom_percentage_input("Offtake - WACC (%) - Phase 2", "ofwaccp2", "Enter", st.session_state.ofwaccp2)
+    drcitrp2 = custom_percentage_input("Corporate Income Tax Rate (%) - Phase 2", "drcitrp2", "Enter", st.session_state.drcitrp2)
+
     st.markdown("<br><br>", unsafe_allow_html=True)
     st.markdown(
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 15px; margin-bottom: 15px; width: 80%; text-align: center; font-size: 36px; margin-top: -50px;" class="center-text">'
         '<strong>Phase 2</strong>'
         '</div>', unsafe_allow_html=True)
+    
     col1, col2 = st.columns((1, 1))
     with col1:
         st.markdown(
@@ -1035,10 +1436,11 @@ elif st.session_state.page == 'phase2':
             '</div>',
             unsafe_allow_html=True
         )
-        st.session_state.cgp2 = custom_number_input("Chlorine Gas (in LE’000 or $’000) - Phase 2",'cgp2key', "Enter",0.0)
-        st.session_state.cfltp2 = custom_number_input("Chemical for laboratory test (in LE’000 or $’000) - Phase 2",'cfltp2key', "Enter",0.0)
-        st.session_state.ogsgp2 = custom_number_input("Fuel (Oil, Gas, Solar and Gasoline (in LE’000 or $’000) - Phase 2",'ogsgp2key', "Enter",0.0)
-        st.session_state.ofo2 = custom_number_input("Other Fixed Opex (in LE’000 or $’000)  - Phase 2",'ofo2key', "Enter",0.0)
+        cgp2 = custom_number_input("Chlorine Gas (in LE'000 or $'000) - Phase 2", 'cgp2', "Enter", st.session_state.cgp2)
+        cfltp2 = custom_number_input("Chemical for laboratory test (in LE'000 or $'000) - Phase 2", 'cfltp2', "Enter", st.session_state.cfltp2)
+        ogsgp2 = custom_number_input("Fuel (Oil, Gas, Solar and Gasoline (in LE'000 or $'000) - Phase 2", 'ogsgp2', "Enter", st.session_state.ogsgp2)
+        ofo2 = custom_number_input("Other Fixed Opex (in LE'000 or $'000) - Phase 2", 'ofo2', "Enter", st.session_state.ofo2)
+    
     with col2:
         st.markdown(
             '<div style="font-size:24px; font-weight:bold; color:#333333; border-bottom:2px solid #cccccc; padding-bottom:8px; margin-bottom:15px;">'
@@ -1046,60 +1448,43 @@ elif st.session_state.page == 'phase2':
             '</div>',
             unsafe_allow_html=True
         )
-        st.session_state.field53 = custom_number_input("Labor (in LE’000 or $’000) - Phase 2", '53',"Enter",0.0)
-        st.session_state.field62 = custom_number_input("Spare Part Cost  (in LE’000 or $’000) - Phase 2", '32',"Enter")
-        st.session_state.field59 = custom_number_input("Energy Costs (LE or $/Kw) - Phase 2", '59',"Enter",0.0)
-        st.session_state.field58 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", '58',"Enter",0.0)
-        if st.session_state.field58 != 0 and st.session_state.field59 != 0:
-            st.write("Effective Price - Energy Costs (LE/m³) - Phase 2",st.session_state.field58*st.session_state.field59)
-            st.session_state.field60 = st.session_state.field58*st.session_state.field59
-        st.session_state.field54 = custom_number_input("Maintenance Costs (in LE’000 or $’000) - Phase 2", '54',"Enter",0.0)
-    col1,col2 = st.columns([1,18])
+        field25p2 = custom_number_input("Labor (in LE'000 or $'000) - Phase 2", 'field25p2', "Enter", st.session_state.field25p2)
+        field26p2 = custom_number_input("Spare Part Cost (in LE'000 or $'000) - Phase 2", 'field26p2', "Enter", st.session_state.field26p2)
+        field27p2 = custom_number_input("Energy Costs (LE or $/Kw) - Phase 2", 'field27p2', "Enter", st.session_state.field27p2)
+        field28p2 = custom_number_input("Energy Consumption (KW/m³) - Phase 2", 'field28p2', "Enter", st.session_state.field28p2)
+        
+        if field27p2 != 0 and field28p2 != 0:
+            effective_price = field27p2 * field28p2
+            st.write("Effective Price- Energy Costs (LE/m³) - Phase 2", effective_price)
+            st.session_state.field29p2 = effective_price
+        
+        field34p2 = custom_number_input("Maintenance Costs (in LE'000 or $'000) - Phase 2", 'field34p2', "Enter", st.session_state.field34p2)
+
+    # Add navigation buttons
+    col1, col2 = st.columns([1, 18])
     with col1:
-        if st.session_state.page == 'phase2':
-            st.button("Back", on_click=continue_to_phase)
+        st.button("Back", on_click=go_back_to_phase)
     with col2:
-        # if st.session_state.page == 'phase2':
-        st.button("Continue to Risk Assesment", on_click=continue_to_risk_management)
+        st.button("Continue to Risk Assessment", on_click=continue_to_risk_management)
 
+    # Update DataFrame
+    if fcp2:
+        df_cleaned_phase_2.at[6, 'Phase_2'] = fcp2
 
-    # Update data in financial model of phase 2
+    if field7p2:
+        df_cleaned_phase_2.at[9, 'Phase_2'] = field7p2
 
-    # if 'oedp2' not in st.session_state:
-    #         st.session_state.oedp1 = None
+    if field8p2:
+        df_cleaned_phase_2.at[10, 'Phase_2'] = field8p2
 
-    # if 'dredp2' not in st.session_state:
-    #         st.session_state.dredp1 = None
+    # if field9p2:
+    #     df_cleaned_phase_2.at[11, 'Phase_2'] = field9p2
 
-    # if 'cep2' not in st.session_state:
-    #         st.session_state.cep1 = None
-
-    # if 'field60' not in st.session_state:
-    #         st.session_state.field60 = None
-
-    # if 'field69' not in st.session_state:
-    #         st.session_state.field69 = None
-
-    # if 'drsdp2' not in st.session_state:
-    #     st.session_state.drsdp2 = None
-
-    if st.session_state.fcp2:
-        df_cleaned_phase_2.at[6, 'Phase_2'] = st.session_state.fcp2
-
-    if st.session_state.field35:
-        df_cleaned_phase_2.at[9, 'Phase_2'] = st.session_state.field35
-
-    if st.session_state.field36:
-        df_cleaned_phase_2.at[10, 'Phase_2'] = st.session_state.field36
-
-    # if st.session_state.field37:
-    #     df_cleaned_phase_2.at[11, 'Phase_2'] = st.session_state.field37
-
-    # if st.session_state.osdp2:
+    # if getattr(st.session_state, 'osdp2', None):
     #     df_cleaned_phase_2.at[14, 'Phase_2'] = st.session_state.osdp2
 
-    if st.session_state.field38:
-        df_cleaned_phase_2.at[15, 'Phase_2'] = st.session_state.field38
+    if field10p2:
+        df_cleaned_phase_2.at[15, 'Phase_2'] = field10p2
 
     # if getattr(st.session_state, 'oedp2', None):
     #     df_cleaned_phase_2.at[16, 'Phase_2'] = st.session_state.oedp2
@@ -1107,23 +1492,23 @@ elif st.session_state.page == 'phase2':
     # if getattr(st.session_state, 'drsdp2', None):
     #     df_cleaned_phase_2.at[19, 'Phase_2'] = st.session_state.drsdp2
 
-    if st.session_state.drtp2:
-        df_cleaned_phase_2.at[20, 'Phase_2'] = st.session_state.drtp2
+    if drtp2:
+        df_cleaned_phase_2.at[20, 'Phase_2'] = drtp2
 
     # if getattr(st.session_state, 'dredp2', None):
     #     df_cleaned_phase_2.at[21, 'Phase_2'] = st.session_state.dredp2
 
-    if st.session_state.cepsp2:
-        df_cleaned_phase_2.at[25, 'Phase_2'] = st.session_state.cepsp2
+    if cepsp2:
+        df_cleaned_phase_2.at[25, 'Phase_2'] = cepsp2
 
-    if st.session_state.ces2:
-        df_cleaned_phase_2.at[26, 'Phase_2'] = st.session_state.ces2
+    if ces2:
+        df_cleaned_phase_2.at[26, 'Phase_2'] = ces2
         
     # if getattr(st.session_state, 'field69', None):
     #     df_cleaned_phase_2.at[27, 'Phase_2'] = st.session_state.field69
 
-    if st.session_state.field40:
-        df_cleaned_phase_2.at[32, 'Phase_2'] = st.session_state.field40
+    if st.session_state.field38:
+        df_cleaned_phase_2.at[32, 'Phase_2'] = st.session_state.field38
 
     # if getattr(st.session_state, 'cep2', None):
     #     df_cleaned_phase_2.at[33, 'Phase_2'] = st.session_state.cep2
@@ -1238,52 +1623,22 @@ elif st.session_state.page == 'phase2':
 elif st.session_state.page == 'risk-management':
     st.markdown(
         f'<div style="background-color: {bg_color}; color: white; padding: 5px; border-radius: 50px; margin-bottom: 15px; width: 80%; text-align: center;font-size: 36px; margin-top: -50px;" class="center-text">'
-        '<strong>Risk Assesment</strong>'
+        '<strong>Risk Assessment</strong>'
         '</div>', unsafe_allow_html=True)
 
-
-            
-    df = load_financial_model(file_path,sheet_name='Sheet1',header=4)
-
-
-    df = df.iloc[:, 1:]
-
-    # st.write("Columns in the DataFrame:", df.columns.tolist())
-
-    df.columns = df.columns.str.strip()
-
-    # df = df.drop([37,38])
-
-
-    df['Mitigation cost'] = df['Mitigation cost'].fillna(0)
-   
-    # df = df.dropna(axis=1, how='any')
-
-
-    if 'editable_values' not in st.session_state:
-        st.session_state.editable_values = { 
-            column: [""] * 15 for column in [
-                "Category", 
-                "Base Cost Link (CAPEX/OPEX/Maintenance)", 
-                "Percentage of Base Cost (%)", 
-                "Recurrence (if OPEX related)", 
-                "Probability of Occurrence (%)", 
-                "Allocation to Government (%)", 
-                "Allocation to Private Sector (%)",
-                "Mitigation cost"
-            ]
-        }
-
+    # Load the risk assessment data if not already in session state
+    if st.session_state.risk_assessment_df is None:
+        df = load_financial_model(file_path, sheet_name='Sheet1', header=4)
+        df = df.iloc[:, 1:]
+        df.columns = df.columns.str.strip()
+        df['Mitigation cost'] = df['Mitigation cost'].fillna(0)
+        st.session_state.risk_assessment_df = df
+    else:
+        df = st.session_state.risk_assessment_df
 
     # Extract risk list
     risk_list = df['Risk'].dropna().tolist()
-
-    # st.write(df.columns.tolist())
-
-    # Store selected risks in session state
-    if 'selected_risks' not in st.session_state:
-        st.session_state.selected_risks = ["Select a risk"] * 15
-
+    
     # List of editable fields
     editable_fields = [
         "Category", 
@@ -1301,7 +1656,7 @@ elif st.session_state.page == 'risk-management':
         selected = st.session_state.selected_risks[:index] + st.session_state.selected_risks[index+1:]
         return ["Select a risk"] + [risk for risk in risk_list if risk not in selected]
 
-    for i in range(15):
+    for i in range(18):
         st.markdown(f"### Select Risk {i + 1}")
 
         # Dropdown to select the risk, ensure each risk can only be selected once
@@ -1314,7 +1669,6 @@ elif st.session_state.page == 'risk-management':
 
         st.session_state.selected_risks[i] = selected_risk
 
-
         # If a valid risk is selected, show editable inputs
         if selected_risk != "Select a risk":
             selected_risk_data = df[df['Risk'] == selected_risk].iloc[0]
@@ -1322,69 +1676,58 @@ elif st.session_state.page == 'risk-management':
             # Use an expander to show editable fields for the selected risk
             with st.expander(f"Details for {selected_risk}"):
                 for column in editable_fields:
-                    # Check if the column is one of the exceptions
-                    if column in ["Cost of risk on the Government (post mitigation)", "Cost of risk on the Private Sector (post mitigation)"]:
-                        # Set value to 0 if the risk is not selected
-                        current_value = 0 if st.session_state.selected_risks[i] == "Select a risk" else selected_risk_data[column]
-                    else:
-                        # Directly assign the value without checking for NaN
-                        current_value = selected_risk_data[column]
+                    # Get the current value from the DataFrame
+                    current_value = selected_risk_data[column]
 
-                        current_value_str = f"{current_value * 100:.2f}" if column in [
-                            "Percentage of Base Cost (%)", 
-                            "Probability of Occurrence (%)", 
-                            "Allocation to Government (%)", 
-                            "Allocation to Private Sector (%)"
-                        ] else str(current_value)
+                    # Format the value appropriately
+                    if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+                                "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
+                        current_value_str = f"{current_value * 100:.2f}"
+                    else:
+                        current_value_str = str(current_value)
 
                     # Display as text input for user to edit
                     new_value = st.text_input(
                         f"{column} (Risk {i + 1})", 
-                        value=current_value_str,  
+                        value=current_value_str,
                         key=f"text_input_{i}_{column}"
                     )
 
                     # Update the value in the DataFrame
-                    if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
-                                "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
-                        try:
+                    try:
+                        if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
+                                    "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
                             df.loc[df['Risk'] == selected_risk, column] = float(new_value) / 100
-                        except ValueError:
-                            pass
-                    elif column == "Mitigation cost":
-                        try:
+                        elif column == "Mitigation cost":
                             df.loc[df['Risk'] == selected_risk, column] = float(new_value)
-                        except ValueError:
-                            pass
-                    else:
-                        df.loc[df['Risk'] == selected_risk, column] = new_value
-        
+                        else:
+                            df.loc[df['Risk'] == selected_risk, column] = new_value
+                    except ValueError:
+                        pass
+
+    # Update the session state DataFrame
+    st.session_state.risk_assessment_df = df
+
     if st.button("Save Changes"):
-    # Check if at least one risk has been selected
+        # Check if at least one risk has been selected
         if all(risk == "Select a risk" for risk in st.session_state.selected_risks):
             st.error("Please select at least one risk before saving changes.")
         else:
             try:
                 file_extension = Path(file_path).suffix.lower()[1:]
                 if file_extension in ['xlsx', 'xls']:
-                        workbook = load_workbook(file_path)
-                        sheet = workbook['Sheet1']
+                    workbook = load_workbook(file_path)
+                    sheet = workbook['Sheet1']
 
                 # Iterate through all selected risks and update corresponding rows in the Excel sheet
                 for i, selected_risk in enumerate(st.session_state.selected_risks):
-
                     if selected_risk != "Select a risk":
-
                         if selected_risk in df['Risk'].values:
                             # Find the row corresponding to the selected risk
                             risk_row = df.index[df['Risk'] == selected_risk].tolist()[0] + 6  # +5 to account for header offset in Excel
 
-                            # st.write(risk_row,'----------------------row')
-
                         # Update only the changed fields in the sheet
                         for column in editable_fields:
-
-                            # st.write(df.columns.get_loc(column),'-----------------original column')
                             col_idx = df.columns.get_loc(column) + 2  
 
                             if column == "Allocation to Government (%)":
@@ -1396,48 +1739,31 @@ elif st.session_state.page == 'risk-management':
                             if column == "Mitigation cost":
                                 col_idx += 3    
 
-                            st.write(f"Writing column '{column}' at Excel column index {col_idx}")
-
-                            st.write(col_idx)
-
                             if column in ["Percentage of Base Cost (%)", "Probability of Occurrence (%)", 
                                         "Allocation to Government (%)", "Allocation to Private Sector (%)"]:
-                                sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])  # Convert back to percentage
+                                sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
                             elif column == "Mitigation cost":
                                 sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
                             else:
                                 sheet.cell(row=risk_row, column=col_idx, value=df.loc[df['Risk'] == selected_risk, column].values[0])
 
-                # st.write('Updated frame',df)
-
-                st.session_state.risk_assement_df = df
-                # output = io.BytesIO()
-                # workbook.save(file_path)
-                # output.seek(0)
-
-                # st.session_state.workbook = output
                 st.success("All changes have been saved successfully!")
-
-                
-
-                
-                # df_dash = load_financial_model(file_path,sheet_name='Output',header=7)
-
-                # st.write(df_dash)
 
             except Exception as e:
                 st.error(f"Error saving changes: {e}")
 
-    if st.session_state.page == 'risk-management':
-        # Create two columns with custom width ratios to display buttons closer together
-        col1, col2 = st.columns([1,18])  # Each column gets 45% of the width
-
-        # Place the "Back" button in the first column and the "Dashboard" button in the second column
-        with col1:
-            st.button("Back", on_click=continue_to_phase2)
-
-        with col2:
-            st.button("Dashboard", on_click=continue_to_dashboard)
+    # Navigation buttons
+    col1, col2 = st.columns([1, 18])
+    with col1:
+        if st.session_state.selected_phase_option == "2":
+            if check_phase2:
+                st.button("Back", on_click=continue_to_phase)
+            else:
+                st.button("Back", on_click=continue_to_phase2)
+        else:
+            st.button("Back", on_click=continue_to_phase)
+    with col2:
+        st.button("Continue to Dashboard", on_click=continue_to_dashboard)
 
 elif st.session_state.page == 'dashboard':
 
@@ -1450,8 +1776,54 @@ elif st.session_state.page == 'dashboard':
     lottie_url2 = "https://lottie.host/da208e68-3a3a-48a9-b73f-17f8925cde2a/zJ0MoRmhHJ.json"
     lottie_animation1 = load_lottie_url(lottie_url1)
     lottie_animation2 = load_lottie_url(lottie_url2)
-    st.sidebar.header("Dashboard Navigation")
-    options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
+    
+    with st.sidebar:
+        st.header("Dashboard Navigation")
+        options = st.sidebar.radio("Select a page:", ["Data Overview","User Details","Download Report"])
+        
+        # Add spacer to push the back button to the bottom
+        st.markdown("<br>" * 10, unsafe_allow_html=True)
+        
+        # Add back button with improved styling
+        st.markdown(
+            """
+            <style>
+            .sidebar-back-button {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                z-index: 1000;
+                width: calc(100% - 40px);
+                max-width: 300px;
+            }
+            .sidebar-back-button button {
+                background-color: #000C66;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 16px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.3s;
+                width: 100%;
+                text-align: center;
+            }
+            .sidebar-back-button button:hover {
+                background-color: #000a4d;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        # Create a container for the back button
+        st.markdown(
+            '<div class="sidebar-back-button">',
+            unsafe_allow_html=True
+        )
+        st.button("← Back to Risk Management", on_click=continue_to_risk_management, key="dashboard_back")
+        st.markdown('</div>', unsafe_allow_html=True)
+
     if  options == "Data Overview":
 
         # st.write(file_path,'----------file pathhh')
@@ -1679,7 +2051,8 @@ elif st.session_state.page == 'dashboard':
         with col1:
             st.markdown("<br><br>", unsafe_allow_html=True)
             # st_lottie(lottie_animation1, height=350, key="home1")
-            st_lottie(lottie_animation2, height=400, key="home2")
+            if lottie_animation2 is not None:
+                st_lottie(lottie_animation2, height=400, key="home2")
         with col2:
             st.markdown(
             f'<br><div style="background-color: #3f3f3f; color: white; padding: 10px; border-radius: 50px; width:70%; margin-bottom: 15px; font-size: 28px;text-align: center;">'
@@ -1709,7 +2082,8 @@ elif st.session_state.page == 'dashboard':
             st.markdown(f'<div class="custom-text">Location: {st.session_state.field4}</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="custom-text">Date: {st.session_state.field5}</div>', unsafe_allow_html=True)
     elif options == "Download Report":
-        st_lottie(lottie_animation1, height=400, key="home3")
+        if lottie_animation1 is not None:
+            st_lottie(lottie_animation1, height=400, key="home3")
         def generate_report():
             data = {
                 "Field": ["Username", "Project", "Capacity", "Location", "Option"],
